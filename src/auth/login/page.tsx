@@ -1,0 +1,82 @@
+import { Button, Image, PasswordInput, Text, TextInput } from "@mantine/core";
+import images from "../../assets";
+import { useForm, zodResolver } from "@mantine/form";
+import { LoginSchema } from "../../validation/auth";
+
+function Login() {
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validate: zodResolver(LoginSchema),
+  });
+  return (
+    <div className="">
+      <div className="gap-5 flex flex-col  items-center w-full p-2 md:w-[498px] md:p-0 h-[336.55px]  ">
+        <div className="w-full flex flex-col items-center pb-8">
+          <p className="m-0 p-0 text-[36px] sm:text-[48px] text-[#1A1D1F]  ">
+            Welcome Admin
+          </p>
+          <p className="m-0 p-0 text-[15px] font-medium text-[#777777]">
+            Log in to your linkatik
+          </p>
+        </div>
+
+        <form
+          className=" w-full flex flex-col items-center gap-3 "
+          onSubmit={form.onSubmit((values) => console.log(values))}
+        >
+          <TextInput
+            w="100%"
+            radius="md"
+            color="#F4F4F4"
+            placeholder="Your email"
+            leftSection={
+              <Image
+                src={images.mail}
+                alt="lock"
+                sizes="20"
+                className="text-[#6F767E]"
+              />
+            }
+            key={form.key("email")}
+            {...form.getInputProps("email")}
+          />
+          <PasswordInput
+            w="100%"
+            variant="filled"
+            color="#F4F4F4"
+            radius="md"
+            placeholder="Your Password"
+            leftSection={
+              <Image
+                src={images.lock}
+                alt="lock"
+                sizes="20"
+                className="text-[#6F767E]"
+              />
+            }
+            key={form.key("password")}
+            {...form.getInputProps("password")}
+          />
+
+          <Text className="text-[#8938B2] self-start" size="sm" pb={20}>
+            Forget password ?
+          </Text>
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full bg-[#8938B2] py-3 text-white rounded-lg"
+          >
+            Log in
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Login;

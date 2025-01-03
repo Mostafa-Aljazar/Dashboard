@@ -1,3 +1,6 @@
+
+// import '@fontsource/inter/variable.css'; // For variable weights
+
 import {
   Badge,
   Button,
@@ -14,8 +17,8 @@ import {
   TableTh,
   TableThead,
   TextInput,
-} from "@mantine/core"
-import { Calendar } from "@mantine/dates"
+} from "@mantine/core";
+import { Calendar } from "@mantine/dates";
 
 const primary = [
   "#f6ebff",
@@ -28,7 +31,7 @@ const primary = [
   "#621cc8",
   "#5717b3",
   "#4a109e",
-] as const
+] as const;
 const secondary = [
   "#e2ffff",
   "#d1fafb",
@@ -40,7 +43,7 @@ const secondary = [
   "#19c9ca",
   "#00b3b4",
   "#009b9c",
-] as const
+] as const;
 
 const gray = [
   "#f5f5f5",
@@ -53,7 +56,7 @@ const gray = [
   "#717171",
   "#656565",
   "#575757",
-] as const
+] as const;
 
 export const theme = createTheme({
   black: "#1A1B1C",
@@ -64,7 +67,7 @@ export const theme = createTheme({
     gray,
   },
 
-  fontFamily: "MyCustomFont, san-serf",
+  fontFamily: "Inter, sans-serif",
   fontFamilyMonospace: "Monaco, Courier, monospace",
   primaryColor: "primary",
   radius: {
@@ -122,16 +125,16 @@ export const theme = createTheme({
           input: '[type="tel"]:!text-left',
         },
         styles(theme, props) {
-          const isFilled = props.variant === "filled"
+          const isFilled = props.variant === "filled";
           if (isFilled)
             return {
               input: {
                 border: `1px solid var(--mantine-color-gray-4)`,
                 background: `#f6f6f6`,
               },
-            }
+            };
 
-          return {}
+          return {};
         },
       },
     }),
@@ -140,16 +143,16 @@ export const theme = createTheme({
         size: "md",
 
         styles(theme, props) {
-          const isFilled = props.variant === "filled"
+          const isFilled = props.variant === "filled";
           if (isFilled)
             return {
               input: {
                 border: `1px solid var(--mantine-color-gray-4)`,
                 background: `#f6f6f6`,
               },
-            }
+            };
 
-          return {}
+          return {};
         },
       },
     }),
@@ -182,7 +185,7 @@ export const theme = createTheme({
         classNames() {
           return {
             day: `!rounded-full data-[selected='true']:!bg-secondary`,
-          }
+          };
         },
       },
     }),
@@ -194,7 +197,7 @@ export const theme = createTheme({
             border: "1px solid #C1C1C1",
             background: "#E2E2E2",
             padding: 0,
-          }
+          };
         },
       },
     }),
@@ -219,4 +222,4 @@ export const theme = createTheme({
       },
     },
   },
-})
+});
