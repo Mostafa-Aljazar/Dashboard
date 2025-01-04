@@ -2,6 +2,9 @@ import { Button, Image, PasswordInput, Text, TextInput } from "@mantine/core";
 import images from "../../assets";
 import { useForm, zodResolver } from "@mantine/form";
 import { LoginSchema } from "../../validation/auth";
+import { useNavigate } from "react-router-dom";
+import LinkatikApi from "../../services/linkatik";
+import { LOCALSTORAGE_SESSION_KEY } from "../../config";
 
 function Login() {
   const form = useForm({
@@ -12,6 +15,27 @@ function Login() {
     },
     validate: zodResolver(LoginSchema),
   });
+
+  const navigate = useNavigate();
+  const HandelSubmit = form.onSubmit(async (data) => {
+    try {
+      const response = await LinkatikApi.post(
+        "/login", //login api
+        data
+      );
+
+      if (response.data?.status === 200) {
+        console.log("status : ", response.data.status);
+
+        const user = response.data.data;
+        localStorage.setItem(LOCALSTORAGE_SESSION_KEY, JSON.stringify(user));
+        navigate(`/dashboard`);
+      }
+    } catch (error) {
+      console.log("🚀 ~ HandelSubmit ~ error:", error);
+    }
+  });
+
   return (
     <div className="">
       <div className="gap-5 flex flex-col  items-center w-full p-2 md:w-[498px] md:p-0 h-[336.55px]  ">
@@ -26,7 +50,7 @@ function Login() {
 
         <form
           className=" w-full flex flex-col items-center gap-3 "
-          onSubmit={form.onSubmit((values) => console.log(values))}
+          onSubmit={HandelSubmit}
         >
           <TextInput
             w="100%"

@@ -2,7 +2,12 @@ import { Button, Image, Input } from "@mantine/core";
 import images from "../../assets";
 import { useForm, zodResolver } from "@mantine/form";
 import { OTPSchema } from "../../validation/auth";
-function Verifications() {
+import { useNavigate } from "react-router-dom";
+import { LinkatikApiGuest } from "../../services/linkatik";
+import { LOCALSTORAGE_SESSION_KEY } from "../../config";
+import { useEffect } from "react";
+import { LoginResponse } from "../../types/user";
+function OTP() {
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -10,6 +15,32 @@ function Verifications() {
     },
     validate: zodResolver(OTPSchema),
   });
+
+  const navigate = useNavigate();
+  const handleSubmit = form.onSubmit(async (data) => {
+    try {
+      const response = await LinkatikApiGuest.post<LoginResponse>(
+        // otp Api
+        "/otpVerify",
+        { ...data, email }
+      );
+      console.log("🚀 ~ onSubmit ~ response:", response);
+      const user = response.data.data;
+      localStorage.setItem(LOCALSTORAGE_SESSION_KEY, JSON.stringify(user));
+      navigate("/dashboard");
+    } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error);
+    }
+  });
+
+  // const [email] = useQueryState("email", parseAsString.withDefault(""));
+
+  // useEffect(() => {
+  //   if (!email) {
+  //     navigate("/auth/login");
+  //   }
+  // }, [email, navigate]);
+
   return (
     <div className="m-auto">
       <div className="gap-5 flex flex-col  items-center w-full p-2 md:w-[498px] md:p-0 h-[336.55px]  ">
@@ -23,7 +54,8 @@ function Verifications() {
         </div>
 
         <form
-          onSubmit={form.onSubmit((values) => console.log(values))}
+          // onSubmit={form.onSubmit((values) => console.log(values))}
+          onSubmit={handleSubmit}
           className=" w-full flex flex-col items-center gap-3"
         >
           <Input
@@ -57,4 +89,4 @@ function Verifications() {
   );
 }
 
-export default Verifications;
+export default OTP;
