@@ -1,10 +1,10 @@
-import { Button, Image, PasswordInput, Text, TextInput } from "@mantine/core";
-import images from "../../assets";
+import { Button, PasswordInput, Text, TextInput } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { LoginSchema } from "../../validation/auth";
 import { useNavigate } from "react-router-dom";
 import LinkatikApi from "../../services/linkatik";
 import { LOCALSTORAGE_SESSION_KEY } from "../../config";
+import { LockKeyhole, Mail } from "lucide-react";
 
 function Login() {
   const form = useForm({
@@ -24,12 +24,13 @@ function Login() {
         data
       );
 
+      console.log("🚀 ~ HandelSubmit ~ response:", response);
       if (response.data?.status === 200) {
         console.log("status : ", response.data.status);
 
         const user = response.data.data;
         localStorage.setItem(LOCALSTORAGE_SESSION_KEY, JSON.stringify(user));
-        navigate(`/dashboard`);
+        navigate(`/dashboard/dash-page`);
       }
     } catch (error) {
       console.log("🚀 ~ HandelSubmit ~ error:", error);
@@ -57,14 +58,7 @@ function Login() {
             radius="md"
             color="#F4F4F4"
             placeholder="Your email"
-            leftSection={
-              <Image
-                src={images.mail}
-                alt="lock"
-                sizes="20"
-                className="text-[#6F767E]"
-              />
-            }
+            leftSection={<Mail color="#6F767E" size={24} absoluteStrokeWidth />}
             key={form.key("email")}
             {...form.getInputProps("email")}
           />
@@ -74,14 +68,7 @@ function Login() {
             color="#F4F4F4"
             radius="md"
             placeholder="Your Password"
-            leftSection={
-              <Image
-                src={images.lock}
-                alt="lock"
-                sizes="20"
-                className="text-[#6F767E]"
-              />
-            }
+            leftSection={<LockKeyhole color="#6F767E" strokeWidth={2} />}
             key={form.key("password")}
             {...form.getInputProps("password")}
           />
