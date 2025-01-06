@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import images from "../assets";
+import images from "../../assets";
 
 function AuthLayout() {
   return (

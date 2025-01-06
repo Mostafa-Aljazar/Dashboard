@@ -1,7 +1,7 @@
 import { Button, Flex, Image, NavLink, Stack } from "@mantine/core";
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import images from "../assets";
+import images from "../../assets";
 import {
   BellDot,
   BellRing,
@@ -23,6 +23,7 @@ import {
   Share,
   Tv,
 } from "lucide-react";
+import ProtectedRoute from "./components/protect-routes";
 
 export const dashboardLinks = [
   {
@@ -61,6 +62,7 @@ const Dashboard_Layout = () => {
 
   const items = dashboardLinks.map((item, index) => (
     <NavLink
+      title={item.label}
       key={item.label}
       active={index === active}
       label={item.label}
@@ -90,7 +92,7 @@ const Dashboard_Layout = () => {
         <div className="w-full p-4  flex gap-4 flex-col ">
           <div className="h-[2px] w-full bg-[#F4F4F4]"></div>
           <NavLink
-            href="#required-for-focus "
+            // href="#required-for-focus "
             active={-1 === active}
             label={"Help & getting started"}
             rightSection={
@@ -138,6 +140,7 @@ const Dashboard_Layout = () => {
             className="rounded-full w-12 h-12 hover:cursor-pointer"
           />
         </nav>
+        <ProtectedRoute />
         <Outlet />
       </Flex>
     </Flex>

@@ -1,24 +1,24 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./auth/login/page";
-import AuthLayout from "./auth/layout";
-import OTP from "./auth/otp/page";
-import Dashboard from "./dashboard/home/page";
-import Dashboard_Layout from "./dashboard/layout";
-import Users from "./dashboard/users/page";
-import UsersLog from "./dashboard/users-logs/page";
-import UsersNotifications from "./dashboard/users-notifications/page";
-import UsersLinks from "./dashboard/users-links/page";
-import BioThemes from "./dashboard/bio-themes/page";
-import QrCodes from "./dashboard/qr-codes/page";
-import Domains from "./dashboard/domains/page";
-import Plans from "./dashboard/plans/page";
-import Codes from "./dashboard/codes/page";
-import Payments from "./dashboard/payments/page";
-import Statistics from "./dashboard/statistics/page";
-import ApiDocs from "./dashboard/api-docs/page";
-import Broadcasts from "./dashboard/broadcasts/page";
-import Settings from "./dashboard/settings/page";
-import Help from "./dashboard/help/page";
+import Login from "./app/auth/login/page";
+import AuthLayout from "./app/auth/layout";
+import OTP from "./app/auth/otp/page";
+import Dashboard from "./app/dashboard/home/page";
+import Dashboard_Layout from "./app/dashboard/layout";
+import Users from "./app/dashboard/users/page";
+import UsersLog from "./app/dashboard/users-logs/page";
+import UsersNotifications from "./app/dashboard/users-notifications/page";
+import UsersLinks from "./app/dashboard/users-links/page";
+import BioThemes from "./app/dashboard/bio-themes/page";
+import QrCodes from "./app/dashboard/qr-codes/page";
+import Domains from "./app/dashboard/domains/page";
+import Plans from "./app/dashboard/plans/page";
+import Codes from "./app/dashboard/codes/page";
+import Payments from "./app/dashboard/payments/page";
+import Statistics from "./app/dashboard/statistics/page";
+import ApiDocs from "./app/dashboard/api-docs/page";
+import Broadcasts from "./app/dashboard/broadcasts/page";
+import Settings from "./app/dashboard/settings/page";
+import Help from "./app/dashboard/help/page";
 
 function Routers() {
   return (
