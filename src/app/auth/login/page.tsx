@@ -1,9 +1,9 @@
 import { Button, PasswordInput, Text, TextInput } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
-import { LoginSchema } from "../../validation/auth";
+import { LoginSchema } from "../../../validation/auth";
 import { useNavigate } from "react-router-dom";
-import LinkatikApi from "../../services/linkatik";
-import { LOCALSTORAGE_SESSION_KEY } from "../../config";
+import LinkatikApi from "../../../services/linkatik";
+import { LOCALSTORAGE_SESSION_KEY } from "../../../config";
 import { LockKeyhole, Mail } from "lucide-react";
 
 function Login() {
@@ -30,7 +30,7 @@ function Login() {
 
         const user = response.data.data;
         localStorage.setItem(LOCALSTORAGE_SESSION_KEY, JSON.stringify(user));
-        navigate(`/dashboard/dash-page`);
+        navigate(`/dashboard/`);
       }
     } catch (error) {
       console.log("🚀 ~ HandelSubmit ~ error:", error);

@@ -1,12 +1,12 @@
 import { Button, Image, Input } from "@mantine/core";
-import images from "../../assets";
+import images from "../../../assets";
 import { useForm, zodResolver } from "@mantine/form";
-import { OTPSchema } from "../../validation/auth";
+import { OTPSchema } from "../../../validation/auth";
 import { useNavigate } from "react-router-dom";
-import { LinkatikApiGuest } from "../../services/linkatik";
-import { LOCALSTORAGE_SESSION_KEY } from "../../config";
+import { LinkatikApiGuest } from "../../../services/linkatik";
+import { LOCALSTORAGE_SESSION_KEY } from "../../../config";
 import { useEffect } from "react";
-import { LoginResponse } from "../../types/user";
+import { LoginResponse } from "../../../types/user";
 function OTP() {
   const form = useForm({
     mode: "uncontrolled",
