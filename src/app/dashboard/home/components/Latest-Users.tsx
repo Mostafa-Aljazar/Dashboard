@@ -1,10 +1,10 @@
-import { Button, Table, Text, Title } from "@mantine/core";
+import { Table, Text, Title } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
-import { User } from "../types";
 import { formatDate } from "../../../../utils/DateFormate";
 import { Check, X } from "lucide-react";
+import { User } from "../../../../types/get-user-response";
 
 function LatestUsers() {
   const [users, setUsers] = useState<User[]>([]); // Define the type for users
@@ -34,72 +34,6 @@ function LatestUsers() {
     return <Text c="red">Error: {error}</Text>;
   }
 
-  // console.log("users : ", users);
-  // console.log("users One: ", formatDate(users[0].created_at.toString()));
-
-  // const elements = [
-  //   {
-  //     position: 1,
-  //     name: "Hydrogen",
-  //     symbol: "H",
-  //     mass: 1.008,
-  //   },
-  //   {
-  //     position: 2,
-  //     name: "Helium",
-  //     symbol: "He",
-  //     mass: 4.0026,
-  //   },
-  //   {
-  //     position: 3,
-  //     name: "Lithium",
-  //     symbol: "Li",
-  //     mass: 6.94,
-  //   },
-  //   {
-  //     position: 4,
-  //     name: "Beryllium",
-  //     symbol: "Be",
-  //     mass: 9.0122,
-  //   },
-  //   {
-  //     position: 5,
-  //     name: "Boron",
-  //     symbol: "B",
-  //     mass: 10.81,
-  //   },
-  //   {
-  //     position: 6,
-  //     name: "Carbon",
-  //     symbol: "C",
-  //     mass: 12.011,
-  //   },
-  //   {
-  //     position: 7,
-  //     name: "Nitrogen",
-  //     symbol: "N",
-  //     mass: 14.007,
-  //   },
-  //   {
-  //     position: 8,
-  //     name: "Oxygen",
-  //     symbol: "O",
-  //     mass: 15.999,
-  //   },
-  //   {
-  //     position: 9,
-  //     name: "Fluorine",
-  //     symbol: "F",
-  //     mass: 18.998,
-  //   },
-  //   {
-  //     position: 10,
-  //     name: "Neon",
-  //     symbol: "Ne",
-  //     mass: 20.18,
-  //   },
-  // ];
-
   const rows = users.map((user) => {
     const { date, time } = formatDate(user?.created_at.toString());
 
@@ -117,7 +51,6 @@ function LatestUsers() {
               variant="filled"
               className=" text-[#78A58C] bg-[#B5E4CA] flex flex-row gap-3 p-1 w-28 rounded-lg items-center"
             >
-              {/* <Check size={14} /> */}
               <Check size={20} strokeWidth={2} absoluteStrokeWidth />
               <span className="">Active</span>
             </Text>
@@ -127,7 +60,6 @@ function LatestUsers() {
               className=" text-[#a57878] bg-[#e4b5b5] flex flex-row gap-3 p-1 w-28 rounded-lg items-center"
             >
               <X size={14} />
-
               <span className="text-sm">Not Active</span>
             </Text>
           )}
@@ -168,7 +100,7 @@ function LatestUsers() {
 
       <Table.ScrollContainer minWidth={500} className="p-5">
         <Table>
-          <Table.Thead >
+          <Table.Thead>
             <Table.Tr className="bg-white">
               <Table.Th>User</Table.Th>
               <Table.Th>Status</Table.Th>

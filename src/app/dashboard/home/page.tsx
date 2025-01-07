@@ -6,7 +6,7 @@ import LatestUsers from "./components/Latest-Users";
 function Dashboard() {
   return (
     <Flex direction={"column"} className="w-full">
-      <Title order={1} className="font-normal">
+      <Title order={1} className="font-normal text-4xl">
         Dashboard
       </Title>
       <LifetimeAnalytics />
