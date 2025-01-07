@@ -6,7 +6,7 @@ const baseURL = "https://back-dev-project.linkatik.com/api";
 
 // Create an Axios instance
 const LinkatikApi = axios.create({
-  baseURL: baseURL + "/user",
+  baseURL: baseURL + "/admin",
 });
 // Create an Axios instance
 export const LinkatikApiGuest = axios.create({
