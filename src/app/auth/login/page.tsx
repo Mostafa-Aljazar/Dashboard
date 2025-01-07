@@ -2,7 +2,7 @@ import { Button, PasswordInput, Text, TextInput } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { LoginSchema } from "../../../validation/auth";
 import { useNavigate } from "react-router-dom";
-import LinkatikApi from "../../../services/linkatik";
+import LinkatikApi, { LinkatikApiGuest } from "../../../services/linkatik";
 import { LOCALSTORAGE_SESSION_KEY } from "../../../config";
 import { LockKeyhole, Mail } from "lucide-react";
 
@@ -19,7 +19,7 @@ function Login() {
   const navigate = useNavigate();
   const HandelSubmit = form.onSubmit(async (data) => {
     try {
-      const response = await LinkatikApi.post(
+      const response = await LinkatikApiGuest.post(
         "/login", //login api
         data
       );

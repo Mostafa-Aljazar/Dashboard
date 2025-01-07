@@ -116,7 +116,7 @@ const Dashboard_Layout = () => {
         </div>
       </Stack>
 
-      <Flex direction={"column"} className="w-full flex-1 flex-grow  ">
+      <Flex direction={"column"} className="w-full  flex-1 flex-grow  ">
         <nav className=" bg-[#FCFCFC] h-24 w-full flex justify-end items-center gap-4 pr-4">
           <Button
             variant="light"
@@ -141,7 +141,9 @@ const Dashboard_Layout = () => {
           />
         </nav>
         <ProtectedRoute />
-        <Outlet />
+        <div className="flex justify-center px-8">
+          <Outlet />
+        </div>
       </Flex>
     </Flex>
   );
