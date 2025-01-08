@@ -1,5 +1,5 @@
-import { Table, Text, Title } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import { ScrollArea, Table, Text, Title } from "@mantine/core";
+import { useEffect, useState } from "react";
 import { GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
@@ -49,7 +49,7 @@ function LatestUsers() {
           {user.is_active ? (
             <Text
               variant="filled"
-              className=" text-[#78A58C] bg-[#B5E4CA] flex flex-row gap-3 p-1 w-28 rounded-lg items-center"
+              className=" text-[#78A58C] bg-[#B5E4CA] flex flex-row gap-1 p-1 w-20 md:gap-3 md:w-28 rounded-lg items-center"
             >
               <Check size={20} strokeWidth={2} absoluteStrokeWidth />
               <span className="">Active</span>
@@ -90,16 +90,21 @@ function LatestUsers() {
   });
 
   return (
-    <div className="pt-10 p-5">
-      <div className="flex flex-row gap-3">
+    <div className="pt-10 ">
+      <div className="flex flex-row gap-3 py-4">
         <div className="w-4 h-8 bg-[#FFBC99] rounded-md "></div>
         <Title order={4} className="font-normal text-[20px]">
           Latest Users
         </Title>
       </div>
 
-      <Table.ScrollContainer minWidth={500} className="p-5">
-        <Table>
+      <ScrollArea className="w-full px-4">
+        <Table
+          verticalSpacing={"xs"}
+          highlightOnHover
+          highlightOnHoverColor="#f6f6f6"
+          className="text-sm rounded-md bg-white min-w-[400px]"
+        >
           <Table.Thead>
             <Table.Tr className="bg-white">
               <Table.Th>User</Table.Th>
@@ -111,7 +116,7 @@ function LatestUsers() {
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
-      </Table.ScrollContainer>
+      </ScrollArea>
     </div>
   );
 }

@@ -121,7 +121,7 @@ function LifetimeAnalytics() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4  bg-[#F4F4F4]    rounded-lg p-8 ">
         {StatisticsData.map((item, index) => {
           return (
-            <div
+            <div key={index}
               className={`   flex flex-row justify-evenly gap-3  p-2 rounded-lg 
                 ${index == 0 ? "bg-[#FCFCFC] shadow-lg" : ""}`}
             >
