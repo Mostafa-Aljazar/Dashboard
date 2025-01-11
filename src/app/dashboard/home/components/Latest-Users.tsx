@@ -31,7 +31,7 @@ function LatestUsers() {
     const fetchData = async () => {
       try {
         const data = await GetUserData();
-        setUsers(data); // Assuming the API returns an array of users
+        setUsers(data.slice(-8).reverse()); // Get Last 8 users 
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -149,14 +149,14 @@ function LatestUsers() {
 
   return (
     <div className="pt-10 ">
-      <div className="flex flex-row gap-3 py-4">
+      <div className="flex flex-row gap-3 p-5">
         <div className="w-4 h-8 bg-[#FFBC99] rounded-md "></div>
         <Title order={4} className="font-normal text-[20px]">
           Latest Users
         </Title>
       </div>
 
-      <Table.ScrollContainer className="mx-5" minWidth={600}>
+      <Table.ScrollContainer className="mx-5 p-4" minWidth={600}>
         <Table
           verticalSpacing={"xs"}
           highlightOnHover
