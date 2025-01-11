@@ -5,10 +5,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HelpCircle } from "lucide-react";
 
-type posistion = {
-  pos: "nav" | "aside" | undefined;
-};
-function PagesLinks({ pos = "nav" }: posistion) {
+// type posistion = {
+//   pos: "nav" | "aside" | undefined;
+// };
+function PagesLinks() {
   //   const [opened, { open, close }] = useDisclosure(false);
 
   const [active, setActive] = useState(0);
@@ -19,8 +19,7 @@ function PagesLinks({ pos = "nav" }: posistion) {
       <NavLink
         active={index === active}
         label={
-          <div className={`w-full ${pos === "nav" ? "" : "max-md:hidden "}  `}>
-            {/* "max-md:hidden" */}
+          <div className={`w-full   `}>
             {item.label}
           </div>
         }
@@ -38,20 +37,12 @@ function PagesLinks({ pos = "nav" }: posistion) {
   return (
     <Stack align="flex-end" className={"bg-[#FCFCFC] pt-4  px-0 "}>
       <div className="w-full px-0 md:px-2 flex gap-4 flex-col ">{items} </div>
-      <div className="w-full p-0  flex gap-4 flex-col ">
+      {/* <div className="w-full p-0  flex gap-4 flex-col ">
         <div className="h-[2px] w-full bg-[#e0e0e0]"></div>
         <Tooltip label={"Help & getting started"}>
           <NavLink
             active={-1 === active}
-            label={
-              <div
-                className={`${
-                  pos === "nav" ? "w-full " : "w-full max-md:hidden "
-                }  `}
-              >
-                {"Help & getting started"}
-              </div>
-            }
+            label={<div>{"Help & getting started"}</div>}
             rightSection={
               <span className=" max-md:hidden bg-[#CABDFF] text-black text-[15px] rounded-lg p-2">
                 {8}
@@ -66,7 +57,7 @@ function PagesLinks({ pos = "nav" }: posistion) {
             className="rounded-lg  flex items-center justify-center max-md:bg-transparent max-md:hover:bg-transparent py-5  md:p-2"
           />
         </Tooltip>
-      </div>
+      </div> */}
     </Stack>
   );
 }

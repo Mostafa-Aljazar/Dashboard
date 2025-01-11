@@ -1,9 +1,25 @@
-import { ScrollArea, Table, Text, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  ScrollArea,
+  Table,
+  Text,
+  Title,
+  Tooltip,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
-import { Check, X } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Clock,
+  Clock9,
+  Database,
+  LogOut,
+  UserPlus,
+  X,
+} from "lucide-react";
 import { User } from "../../../../types/get-user-response";
 
 function LatestUsers() {
@@ -66,7 +82,7 @@ function LatestUsers() {
         </Table.Td>
         <Table.Td>
           <span className="text-black px-4 py-1 rounded-md bg-[#CABDFF] text-base">
-            {user.plan.name}
+            {user.plan?.name}
           </span>
         </Table.Td>
         <Table.Td>
@@ -77,12 +93,54 @@ function LatestUsers() {
         </Table.Td>
         <Table.Td>
           <div className="flex flex-row flex-wrap items-center justify-evenly">
-            <X />
-            <X />
-            <X />
-            <X />
-            <X />
-            <X />
+            <Tooltip label={"Calendar"} position="top" offset={-10}>
+              <ActionIcon
+                bg={""}
+                className="border-none"
+                variant="default"
+                size="lg"
+                radius="xl"
+                aria-label="Settings"
+              >
+                <Calendar size={20} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={"LogOut"} position="top" offset={-10}>
+              <ActionIcon
+                bg={""}
+                className="border-none"
+                variant="default"
+                size="lg"
+                radius="xl"
+                aria-label="Settings"
+              >
+                <LogOut size={20} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={"Clock9"} position="top" offset={-10}>
+              <ActionIcon
+                bg={""}
+                className="border-none"
+                variant="default"
+                size="lg"
+                radius="xl"
+                aria-label="Settings"
+              >
+                <Clock9 size={20} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={"Calendar"} position="top" offset={-10}>
+              <ActionIcon
+                bg={""}
+                className="border-none"
+                variant="default"
+                size="lg"
+                radius="xl"
+                aria-label="Settings"
+              >
+                <UserPlus size={20} />
+              </ActionIcon>
+            </Tooltip>
           </div>
         </Table.Td>
       </Table.Tr>
@@ -98,12 +156,12 @@ function LatestUsers() {
         </Title>
       </div>
 
-      <ScrollArea className="w-full px-4">
+      <Table.ScrollContainer className="mx-5" minWidth={600}>
         <Table
           verticalSpacing={"xs"}
           highlightOnHover
           highlightOnHoverColor="#f6f6f6"
-          className="text-sm rounded-md bg-white min-w-[400px]"
+          // className="text-sm rounded-md bg-white min-w-[400px]"
         >
           <Table.Thead>
             <Table.Tr className="bg-white">
@@ -116,7 +174,7 @@ function LatestUsers() {
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
-      </ScrollArea>
+      </Table.ScrollContainer>
     </div>
   );
 }

@@ -1,9 +1,13 @@
 import {
+  AppShell,
+  Burger,
   Button,
   Drawer,
   Flex,
+  Group,
   Image,
   ScrollArea,
+  Skeleton,
 } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 import images from "../../assets";
@@ -63,94 +67,122 @@ export const dashboardLinks = [
 ];
 
 const Dashboard_Layout = () => {
-  const [opened, { open, close }] = useDisclosure(false);
+  // const [opened, { open, close }] = useDisclosure(false);
 
-  return (
-    <Flex className="w-full min-h-screen  flex flex-col ">
-      <div className="w-full flex-1 shadow-sm py-3 flex items-center justify-between   ">
-        <div className="ml-4 flex gap-4 flex-row items-center justify-center">
-          <Button
-            variant="default"
-            onClick={open}
-            className="p-0 border-none hover:text-[#8938B2] ml-0 md:hidden"
-          >
-            <Menu size={25} />
-          </Button>
+  // return (
+  //   <Flex className="w-full min-h-screen  flex flex-col ">
+  //     <div className="w-full flex-1 shadow-sm py-3 flex items-center justify-between   ">
+  //       <div className="ml-4 flex gap-4 flex-row items-center justify-center">
+  //         <Button
+  //           variant="default"
+  //           onClick={open}
+  //           className="p-0 border-none hover:text-[#8938B2] ml-0 md:hidden"
+  //         >
+  //           <Menu size={25} />
+  //         </Button>
+  //         <Image
+  //           src={images.linkatikSVG}
+  //           alt="linkatik"
+  //           fit="contain"
+  //           className=" w-20 h-18 md:w-28 md:h-18 md:ml-4"
+  //         />
+  //       </div>
+  //       <nav className="flex-1 bg-[#FCFCFC]   flex justify-end items-center gap-x-4 pr-4">
+  //         <BellDot size={22} className="rounded-full  hover:cursor-pointer" />
+  //         <Image
+  //           src={images.man}
+  //           alt="man"
+  //           className="rounded-full w-12 h-12  hover:cursor-pointer"
+  //         />
+  //       </nav>
+  //     </div>
+
+  //     <Drawer
+  //       size={"300px"}
+  //       opened={opened}
+  //       onClose={close}
+  //       scrollAreaComponent={ScrollArea.Autosize}
+  //     >
+  //       <div className="w-full px-0 flex gap-4 flex-col ">
+  //         <div className="w-full justify-around flex flex-row gap-x-3">
+  //           <Button
+  //             variant="light"
+  //             radius="md"
+  //             leftSection={<Flame height={19} width={16} />}
+  //             className="  text-lg"
+  //             size="sm"
+  //           >
+  //             Upgrade
+  //           </Button>
+  //           <Button
+  //             size="sm"
+  //             variant="filled"
+  //             radius="md"
+  //             className=" text-lg"
+  //             leftSection={<Share height={15} width={18} />}
+  //           >
+  //             Share
+  //           </Button>
+  //         </div>
+  //         <PagesLinks pos={"nav"} />
+  //       </div>
+  //     </Drawer>
+  //     <div className="flex flex-row">
+  //       <PagesLinks pos="aside" />
+  //       <Flex direction={"column"} className="w-full  flex-1 flex-grow  ">
+  //         <ProtectedRoute />
+  //         <div className="flex justify-center ">
+  //           <Outlet />
+  //         </div>
+  //       </Flex>
+  //     </div>
+  //   </Flex>
+  // );
+
+  const [opened, { toggle }] = useDisclosure();
+
+  return ( 
+    <AppShell 
+    withBorder={false}
+      header={{ height: { base: 60, md: 70, lg: 80 } }}
+      navbar={{
+        width: { base: 200, md: 200, lg: 230 },
+        breakpoint: "sm",
+        collapsed: { mobile: !opened },
+      }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md">
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Image
-            src={images.linkatikSVG}
+            src={images.linkatik}
             alt="linkatik"
             fit="contain"
             className=" w-20 h-18 md:w-28 md:h-18 md:ml-4"
           />
-        </div>
-        <nav className="flex-1 bg-[#FCFCFC]   flex justify-end items-center gap-x-4 pr-4">
-          <div className="max-md:hidden flex flex-row gap-x-4">
-            <Button
-              variant="light"
-              radius="md"
-              leftSection={<Flame height={19} width={16} />}
-              className="w-45 h-10 px-2 py-0"
-            >
-              Upgrade
-            </Button>
-            <Button
-              variant="filled"
-              radius="md"
-              className="w-45 h-10 px-2 py-0"
-              leftSection={<Share height={15} width={18} />}
-            >
-              Share
-            </Button>
-          </div>
-          <BellDot size={22} className="rounded-full  hover:cursor-pointer" />
-          <Image
-            src={images.man}
-            alt="man"
-            className="rounded-full w-12 h-12  hover:cursor-pointer"
-          />
-        </nav>
-      </div>
+          <nav className="flex-1 bg-[#FCFCFC]   flex justify-end items-center gap-x-4 pr-4">
+            <BellDot size={22} className="rounded-full  hover:cursor-pointer" />
+            <Image
+              src={images.man}
+              alt="man"
+              className="rounded-full w-12 h-12  hover:cursor-pointer"
+            />
+          </nav>
+        </Group>
+      </AppShell.Header>
+      <AppShell.Navbar component={ScrollArea}  className="bg-red-500">
+        <PagesLinks />
+      </AppShell.Navbar>
+      <AppShell.Main >
+        
 
-      <Drawer
-        size={"300px"}
-        opened={opened}
-        onClose={close}
-        scrollAreaComponent={ScrollArea.Autosize}
-      >
-        <div className="w-full px-0 flex gap-4 flex-col ">
-          <div className="w-full justify-around flex flex-row gap-x-3">
-            <Button
-              variant="light"
-              radius="md"
-              leftSection={<Flame height={19} width={16} />}
-              className="  text-lg"
-              size="sm"
-            >
-              Upgrade
-            </Button>
-            <Button
-              size="sm"
-              variant="filled"
-              radius="md"
-              className=" text-lg"
-              leftSection={<Share height={15} width={18} />}
-            >
-              Share
-            </Button>
-          </div>
-          <PagesLinks pos={"nav"} />
-        </div>
-      </Drawer>
-      <div className="flex flex-row">
-        <PagesLinks pos="aside" />
-        <Flex direction={"column"} className="w-full  flex-1 flex-grow  ">
-          <ProtectedRoute />
+      <ProtectedRoute />
           <div className="flex justify-center ">
-            <Outlet />
-          </div>
-        </Flex>
-      </div>
-    </Flex>
+             <Outlet />
+           </div>
+      </AppShell.Main>
+    </AppShell>
   );
 };
 

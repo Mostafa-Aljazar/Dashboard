@@ -45,7 +45,7 @@ function LifetimeAnalytics() {
   const StatisticsData = [
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full text-white p-2 w-9 h-9 bg-[#4ACF70]">
           <ShoppingBag />
         </div>
       ),
@@ -54,7 +54,7 @@ function LifetimeAnalytics() {
     },
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full text-white p-2 w-9 h-9 bg-[#6C32F9]">
           <MousePointer />
         </div>
       ),
@@ -63,7 +63,7 @@ function LifetimeAnalytics() {
     },
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full  text-white p-2 w-9 h-9 bg-[#F9D747]">
           <ScanQrCode />
         </div>
       ),
@@ -72,7 +72,7 @@ function LifetimeAnalytics() {
     },
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full  text-white p-2 w-9 h-9 bg-[#F077E4]">
           <UserRound />
         </div>
       ),
@@ -81,7 +81,7 @@ function LifetimeAnalytics() {
     },
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full  text-white p-2 w-9 h-9 bg-[#4ACF70]">
           <ShoppingBag />
         </div>
       ),
@@ -91,7 +91,7 @@ function LifetimeAnalytics() {
 
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full p-2  text-white w-9 h-9 bg-[#6C32F9]">
           <MousePointer />
         </div>
       ),
@@ -101,7 +101,7 @@ function LifetimeAnalytics() {
 
     {
       icon: (
-        <div className="flex justify-center items-center rounded-full p-2  w-10 h-10 bg-[#4ACF70]">
+        <div className="flex justify-center items-center rounded-full text-white p-2 w-9 h-9 bg-[#F9D747]">
           <UserRoundCheck />
         </div>
       ),
@@ -118,14 +118,15 @@ function LifetimeAnalytics() {
         </Title>
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4  bg-[#F4F4F4]    rounded-lg p-8 ">
+      <div className="mx-5 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4  bg-[#F4F4F4]    rounded-lg p-4 ">
         {StatisticsData.map((item, index) => {
           return (
-            <div key={index}
-              className={`   flex flex-row justify-evenly gap-3  p-2 rounded-lg 
-                ${index == 0 ? "bg-[#FCFCFC] shadow-lg" : ""}`}
+            <div
+              key={index}
+              className={`w-full flex   bg-[#FCFCFC] shadow-lg    gap-3  p-3 rounded-lg `}
+              // className={`w-full bg-[#FCFCFC] shadow-lg   flex  flex-row justify-around gap-3  p-2 rounded-lg `}
             >
-              <div className="">{item.icon}</div>
+              <div className="p-2">{item.icon}</div>
 
               <div className="flex-1 flex flex-col  items-start">
                 <div className="text-[#6F767E] text-sm">{item.label}</div>

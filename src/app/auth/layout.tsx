@@ -1,20 +1,25 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import images from "../../assets";
+import { Image } from "@mantine/core";
+import { isAuthenticated } from "../../utils/is-authenticated";
 
 function AuthLayout() {
+  if (isAuthenticated()) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return (
-    <div className="flex flex-row h-screen">
-      {/* right section */}
-      <div className="flex-1  flex flex-col">
-        <nav className="w-full p-[40px] ">
-          <img src={images.linkatik} alt="linkatik" width={125} height={46} />
-        </nav>
-        <div className="m-auto">
-          <Outlet />
-        </div>
+    <div className="h-screen flex-1  flex flex-col">
+      <nav className="w-full p-4 ">
+        <Image
+          src={images.linkatik}
+          alt="linkatik"
+          fit="contain"
+          className=" w-20 h-18 md:w-28 md:h-18 md:ml-4"
+        />
+      </nav>
+      <div className="m-auto">
+        <Outlet />
       </div>
-
-      <div className="lg:w-[461px]   bg-[#F4F4F4]"></div>
     </div>
   );
 }
