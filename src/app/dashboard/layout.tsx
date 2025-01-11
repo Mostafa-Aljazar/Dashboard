@@ -19,17 +19,14 @@ import {
   CodeXml,
   DollarSign,
   FileCode,
-  Flame,
   Globe,
   HouseIcon,
   Link,
   Logs,
-  Menu,
   NotepadText,
   Palette,
   QrCode,
   Settings,
-  Share,
   Tv,
 } from "lucide-react";
 import ProtectedRoute from "./components/protect-routes";
@@ -141,9 +138,9 @@ const Dashboard_Layout = () => {
 
   const [opened, { toggle }] = useDisclosure();
 
-  return ( 
-    <AppShell 
-    withBorder={false}
+  return (
+    <AppShell
+      withBorder={false}
       header={{ height: { base: 60, md: 70, lg: 80 } }}
       navbar={{
         width: { base: 200, md: 200, lg: 230 },
@@ -171,16 +168,14 @@ const Dashboard_Layout = () => {
           </nav>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar component={ScrollArea}  className="bg-red-500">
+      <AppShell.Navbar component={ScrollArea} className="bg-red-500">
         <PagesLinks />
       </AppShell.Navbar>
-      <AppShell.Main >
-        
-
-      <ProtectedRoute />
-          <div className="flex justify-center ">
-             <Outlet />
-           </div>
+      <AppShell.Main>
+        <ProtectedRoute />
+        <div className="flex ">
+          <Outlet />
+        </div>
       </AppShell.Main>
     </AppShell>
   );
