@@ -37,7 +37,7 @@ function CreateUserModal({
   const [InterestData, setInterestData] = useState<Interest[]>([]);
 
   const form = useForm({
-    mode: "controlled",
+    mode: "uncontrolled",
     initialValues: {
       is_active: true,
       email: "",

@@ -1,13 +1,13 @@
 import {
   ActionIcon,
-  ScrollArea,
+  Menu,
   Table,
   Text,
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
-import { GetLastUsersData, GetUserData } from "../../api-handlers/getUsers";
+import { useEffect, useRef, useState } from "react";
+import {  GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
 import {
@@ -107,19 +107,7 @@ function LatestUsers() {
         </Table.Td>
         <Table.Td>
           <div className="flex flex-row flex-wrap items-center justify-evenly">
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Calendar size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"LogOut"} position="top" offset={-10}>
+          <Tooltip label={"Login Type"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
@@ -131,19 +119,8 @@ function LatestUsers() {
                 <LogOut size={20} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={"Clock9"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Clock9 size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
+          
+            <Tooltip label={"login to user page"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
