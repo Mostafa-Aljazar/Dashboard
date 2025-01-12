@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Button,
   Group,
+  Menu,
   Pagination,
   Table,
   Text,
@@ -10,12 +11,44 @@ import {
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { LoadingOverlay } from "@mantine/core";
-import { Calendar, Check, Clock9, LogOut, UserPlus, X } from "lucide-react";
-import { User } from "../../../types/get-user-response";
+import {
+  Calendar,
+  Check,
+  CircleX,
+  Clock9,
+  EllipsisVertical,
+  LogOut,
+  UserPen,
+  UserPlus,
+  UserX,
+  X,
+} from "lucide-react";
+import { User } from "../../../types/get-users-response";
 import { formatDate } from "../../../utils/DateFormate";
 import { GetUserPagination } from "../api-handlers/getUsers";
+import { useDisclosure } from "@mantine/hooks";
+// import { GetInterests } from "../api-handlers/getInterests";
+// import { Interest } from "../../../types/get-interests-response";
+// import { GetPlans } from "../api-handlers/getPlans";
+// import { Plan } from "../../../types/get-plans-response";
+import CreateUserModal from "./components/create-user-modal";
+import { DeleteUser } from "../api-handlers/deleteUser";
+import { BlockUser } from "../api-handlers/blockUser";
+import EditUserModal from "./components/edit-user-modal";
+import { GetUser } from "../api-handlers/getUser";
 
 function Users() {
+  const [openedCreate, handlersCreate] = useDisclosure(false, {
+    onOpen: () => console.log("Opened"),
+    onClose: () => console.log("Closed"),
+  });
+  const [openedEdit, handlersEdit] = useDisclosure(false, {
+    onOpen: () => console.log("Opened"),
+    onClose: () => console.log("Closed"),
+  });
+
+  const idUserEdit = useRef("");
+
   const [activePage, setPage] = useState(1);
   const noOfPages = useRef(0);
   const noOfTotalUsers = useRef(0);
@@ -32,11 +65,11 @@ function Users() {
           per_page: noOfUsersPerPage.current,
           page: activePage,
         });
-        console.log("🚀 ~ GetUserData pagination:", data.pagination);
+        // console.log("🚀 ~ GetUserData pagination:", data.pagination);
         noOfPages.current = data.pagination.last_page;
         noOfTotalUsers.current = data.pagination.total;
 
-        console.log("🚀 ~   noOfPages.current:", noOfPages.current);
+        // console.log("🚀 ~   noOfPages.current:", noOfPages.current);
         // setUsers(data.slice(-8).reverse()); // Get Last 8 users
         setUsers(data.data); // Get Last 8 users
         setLoading(false);
@@ -48,6 +81,7 @@ function Users() {
 
     fetchData();
   }, [activePage]);
+
 
   if (loading) {
     return <LoadingOverlay visible={true} />;
@@ -150,6 +184,65 @@ function Users() {
             </Tooltip>
           </div>
         </Table.Td>
+        <Table.Td>
+          <Menu shadow="md" width={250} position="top">
+            <Menu.Target>
+              <ActionIcon variant="transparent" aria-label="Settings">
+                <EllipsisVertical className="text-[#6F767E]" />
+              </ActionIcon>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Label className="text-base">Actions</Menu.Label>
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<UserX size={20} className="text-gray-700" />}
+                onClick={async () => {
+                  try {
+                    const response = await DeleteUser(user.id + "");
+                    console.log("🚀 ~ onClick={ ~ response:", response);
+                    setLoading(false);
+                  } catch (err) {
+                    setError(err.message);
+                    setLoading(false);
+                  }
+                }}
+              >
+                Delete User
+              </Menu.Item>
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<CircleX size={20} className="text-gray-700" />}
+                onClick={async () => {
+                  try {
+                    const response = await BlockUser(user.id + "");
+                    console.log("🚀 ~ onClick={ ~ response:", response);
+                    setLoading(false);
+                  } catch (err) {
+                    setError(err.message);
+                    setLoading(false);
+                  }
+                }}
+              >
+                Block User
+              </Menu.Item>
+
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<UserPen size={20} className="text-gray-700" />}
+              >
+                <div
+                  onClick={() => {
+                    idUserEdit.current = `${user.id}`;
+                    handlersEdit.open();
+                  }}
+                >
+                  Edit User
+                </div>
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Table.Td>
       </Table.Tr>
     );
   });
@@ -160,13 +253,16 @@ function Users() {
         <Title order={1} className="font-normal text-2xl md:text-4xl">
           Users
         </Title>
-        <Button
-          size="sm"
-          className="px-3 mr-10"
-          leftSection={<UserPlus size={14} />}
-        >
-          Create User
-        </Button>
+        <>
+          <Button
+            size="sm"
+            className="px-3 mr-10"
+            leftSection={<UserPlus size={14} />}
+            onClick={handlersCreate.open}
+          >
+            Create User
+          </Button>
+        </>
       </Group>
 
       <div className="rounded-lg mt-9 p-15 bg-[#FCFCFC]">
@@ -178,8 +274,6 @@ function Users() {
             verticalSpacing={"xs"}
             highlightOnHover
             highlightOnHoverColor="#f6f6f6"
-            className=""
-            // className="text-sm rounded-md bg-white min-w-[400px]"
           >
             <Table.Thead>
               <Table.Tr className="bg-white">
@@ -188,6 +282,7 @@ function Users() {
                 <Table.Th>Plan</Table.Th>
                 <Table.Th>Created</Table.Th>
                 <Table.Th>Details</Table.Th>
+                <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
@@ -215,6 +310,15 @@ function Users() {
           mt="sm"
         />
       </Group>
+
+      <>
+        <EditUserModal
+          userId={idUserEdit.current}
+          opened={openedEdit}
+          onClose={handlersEdit.close}
+        />
+        <CreateUserModal opened={openedCreate} onClose={handlersCreate.close} />
+      </>
     </div>
   );
 }
