@@ -40,7 +40,7 @@ function LifetimeAnalytics() {
     return <Text c="red">Error: {error}</Text>;
   }
 
-  console.log("statistics : ", statistics);
+  // console.log("statistics : ", statistics);
 
   const StatisticsData = [
     {

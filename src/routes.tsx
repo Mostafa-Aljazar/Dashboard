@@ -23,6 +23,7 @@ import Help from "./app/dashboard/help/page";
 function Routers() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/auth/login" replace />} />
       <Route path="auth" element={<AuthLayout />}>
         <Route index element={<Navigate to={"/auth/login"} />} />
         <Route path="login" element={<Login />} />
@@ -44,8 +45,8 @@ function Routers() {
         <Route path="statistics" element={<Statistics />} />
         <Route path="api-docs" element={<ApiDocs />} />
         <Route path="broadcasts" element={<Broadcasts />} />
-        <Route path="settings" element={<Settings />} />   
-        <Route path="help" element={<Help />} />   
+        <Route path="settings" element={<Settings />} />
+        <Route path="help" element={<Help />} />
       </Route>
     </Routes>
   );

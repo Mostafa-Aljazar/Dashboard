@@ -1,8 +1,9 @@
-export interface GetUserResponse {
-    success: boolean;
-    status:  number;
-    message: string;
-    data:    User;
+export interface GetUsersResponse {
+    status:     number;
+    success:    boolean;
+    message:    string;
+    data:       User[];
+    pagination: Pagination;
 }
 
 export interface User {
@@ -48,4 +49,11 @@ export interface PlanSettings {
     links_statistics_limit:   number;
     enabled_bio_link_blocks:  { [key: string]: boolean };
     payment_processors_limit: number;
+}
+
+export interface Pagination {
+    total:        number;
+    per_page:     number;
+    current_page: number;
+    last_page:    number;
 }

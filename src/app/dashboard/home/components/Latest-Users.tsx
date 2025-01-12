@@ -1,28 +1,35 @@
-import {
-  ActionIcon,
-  ScrollArea,
-  Table,
-  Text,
-  Title,
-  Tooltip,
-} from "@mantine/core";
-import { useEffect, useState } from "react";
-import { GetLastUsersData, GetUserData } from "../../api-handlers/getUsers";
+import { ActionIcon, Menu, Table, Text, Title, Tooltip } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
 import {
   Calendar,
   Check,
-  Clock,
+  CircleX,
   Clock9,
-  Database,
+  EllipsisVertical,
   LogOut,
+  UserPen,
   UserPlus,
+  UserX,
   X,
 } from "lucide-react";
-import { User } from "../../../../types/get-user-response";
+import { User } from "../../../../types/get-users-response";
+import { DeleteUser } from "../../api-handlers/deleteUser";
+import { BlockUser } from "../../api-handlers/blockUser";
+import { useDisclosure } from "@mantine/hooks";
+import EditUserModal from "../../users/components/edit-user-modal";
 
 function LatestUsers() {
+  const [openedEdit, handlersEdit] = useDisclosure(false, {
+    onOpen: () => console.log("Opened"),
+    onClose: () => console.log("Closed"),
+  });
+
+  const idUserEdit = useRef("");
+
+
   const [users, setUsers] = useState<User[]>([]); // Define the type for users
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +38,7 @@ function LatestUsers() {
     const fetchData = async () => {
       try {
         const data = await GetUserData();
-        setUsers(data.slice(-8).reverse()); // Get Last 8 users 
+        setUsers(data.slice(-8).reverse()); // Get Last 8 users
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -143,6 +150,65 @@ function LatestUsers() {
             </Tooltip>
           </div>
         </Table.Td>
+        <Table.Td>
+          <Menu shadow="md" width={250} position="top">
+            <Menu.Target>
+              <ActionIcon variant="transparent" aria-label="Settings">
+                <EllipsisVertical className="text-[#6F767E]" />
+              </ActionIcon>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Label className="text-base">Actions</Menu.Label>
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<UserX size={20} className="text-gray-700" />}
+                onClick={async () => {
+                  try {
+                    const response = await DeleteUser(user.id + "");
+                    console.log("🚀 ~ onClick={ ~ response:", response);
+                    setLoading(false);
+                  } catch (err) {
+                    setError(err.message);
+                    setLoading(false);
+                  }
+                }}
+              >
+                Delete User
+              </Menu.Item>
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<CircleX size={20} className="text-gray-700" />}
+                onClick={async () => {
+                  try {
+                    const response = await BlockUser(user.id + "");
+                    console.log("🚀 ~ onClick={ ~ response:", response);
+                    setLoading(false);
+                  } catch (err) {
+                    setError(err.message);
+                    setLoading(false);
+                  }
+                }}
+              >
+                Block User
+              </Menu.Item>
+
+              <Menu.Item
+                className="text-gray-700"
+                leftSection={<UserPen size={20} className="text-gray-700" />}
+              >
+                <div
+                  onClick={() => {
+                    idUserEdit.current = `${user.id}`;
+                    handlersEdit.open();
+                  }}
+                >
+                  Edit User
+                </div>
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Table.Td>
       </Table.Tr>
     );
   });
@@ -161,7 +227,6 @@ function LatestUsers() {
           verticalSpacing={"xs"}
           highlightOnHover
           highlightOnHoverColor="#f6f6f6"
-          // className="text-sm rounded-md bg-white min-w-[400px]"
         >
           <Table.Thead>
             <Table.Tr className="bg-white">
@@ -170,11 +235,20 @@ function LatestUsers() {
               <Table.Th>Plan</Table.Th>
               <Table.Th>Created</Table.Th>
               <Table.Th>Details</Table.Th>
+              <Table.Th></Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+
+      <>
+        <EditUserModal
+          userId={idUserEdit.current}
+          opened={openedEdit}
+          onClose={handlersEdit.close}
+        />
+      </>
     </div>
   );
 }
