@@ -12,10 +12,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { LoadingOverlay } from "@mantine/core";
 import {
-  Calendar,
   Check,
   CircleX,
-  Clock9,
   EllipsisVertical,
   LogOut,
   UserPen,
@@ -35,7 +33,6 @@ import CreateUserModal from "./components/create-user-modal";
 import { DeleteUser } from "../api-handlers/deleteUser";
 import { BlockUser } from "../api-handlers/blockUser";
 import EditUserModal from "./components/edit-user-modal";
-import { GetUser } from "../api-handlers/getUser";
 
 function Users() {
   const [openedCreate, handlersCreate] = useDisclosure(false, {
@@ -73,8 +70,8 @@ function Users() {
         // setUsers(data.slice(-8).reverse()); // Get Last 8 users
         setUsers(data.data); // Get Last 8 users
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };
@@ -180,8 +177,8 @@ function Users() {
                     const response = await DeleteUser(user.id + "");
                     console.log("🚀 ~ onClick={ ~ response:", response);
                     setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
+                  } catch (err:unknown) {
+                    setError(err?.message);
                     setLoading(false);
                   }
                 }}

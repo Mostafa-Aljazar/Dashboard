@@ -63,10 +63,10 @@ function EditUserModal({
       alert("User Updated successfully!");
       form.reset();
       onClose();
-    } catch (error) {
+    } catch (error:unknown) {
       console.error(
         "Error Updating user:",
-        error.response?.data || error.message
+        error?.response?.data || error?.message
       );
       alert("Failed to update user. Please try again.");
     }
@@ -96,8 +96,8 @@ function EditUserModal({
         setInterestData(interestsResponse.data);
 
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };

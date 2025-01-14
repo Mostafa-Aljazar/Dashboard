@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./app/auth/login/page";
 import AuthLayout from "./app/auth/layout";
-import OTP from "./app/auth/otp/page";
 import Dashboard from "./app/dashboard/home/page";
 import Dashboard_Layout from "./app/dashboard/layout";
 import Users from "./app/dashboard/users/page";

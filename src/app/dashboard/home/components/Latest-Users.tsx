@@ -11,10 +11,8 @@ import {  GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
 import {
-  Calendar,
   Check,
   CircleX,
-  Clock9,
   EllipsisVertical,
   LogOut,
   UserPen,
@@ -47,8 +45,8 @@ function LatestUsers() {
         const data = await GetUserData();
         setUsers(data.slice(-8).reverse()); // Get Last 8 users
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };
@@ -152,8 +150,8 @@ function LatestUsers() {
                     const response = await DeleteUser(user.id + "");
                     console.log("🚀 ~ onClick={ ~ response:", response);
                     setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
+                  } catch (err:unknown) {
+                    setError(err?.message);
                     setLoading(false);
                   }
                 }}
@@ -168,8 +166,8 @@ function LatestUsers() {
                     const response = await BlockUser(user.id + "");
                     console.log("🚀 ~ onClick={ ~ response:", response);
                     setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
+                  } catch (err:unknown) {
+                    setError(err?.message);
                     setLoading(false);
                   }
                 }}

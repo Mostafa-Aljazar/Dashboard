@@ -23,8 +23,8 @@ function LifetimeAnalytics() {
         const data = await GetStatisticsData();
         setStatistics(data); // Assuming the API returns an array of users
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };

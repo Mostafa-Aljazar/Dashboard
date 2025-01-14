@@ -1,4 +1,4 @@
-import { Button, PasswordInput, Text, TextInput } from "@mantine/core";
+import { Button, PasswordInput, TextInput } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { LoginSchema } from "../../../validation/auth";
 import { useNavigate } from "react-router-dom";

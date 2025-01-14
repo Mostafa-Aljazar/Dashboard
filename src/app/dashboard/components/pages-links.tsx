@@ -3,7 +3,6 @@ import { dashboardLinks } from "../layout";
 import { useState } from "react";
 // import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import { HelpCircle } from "lucide-react";
 
 // type posistion = {
 //   pos: "nav" | "aside" | undefined;

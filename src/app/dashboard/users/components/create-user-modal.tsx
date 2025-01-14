@@ -62,10 +62,10 @@ function CreateUserModal({
       alert("User created successfully!");
       form.reset();
       onClose()
-    } catch (error) {
+    } catch (error:unknown) {
       console.error(
         "Error creating user:",
-        error.response?.data || error.message
+        error?.response?.data || error?.message
       );
       alert("Failed to create user. Please try again.");
     }
@@ -87,8 +87,8 @@ function CreateUserModal({
         setInterestData(interestsResponse.data);
 
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };
