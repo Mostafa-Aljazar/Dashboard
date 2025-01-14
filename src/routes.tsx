@@ -19,7 +19,7 @@ import Broadcasts from "./app/dashboard/broadcasts/page";
 import Settings from "./app/dashboard/settings/page";
 import Help from "./app/dashboard/help/page";
 import PLan_Layout from "./app/dashboard/plans/layout";
-import CreatePLan from "./app/dashboard/plans/Create-Plan/page";
+import CreatePLanPage from "./app/dashboard/plans/Create-Plan/page";
 
 function Routers() {
   return (
@@ -42,7 +42,7 @@ function Routers() {
         <Route path="domains" element={<Domains />} />
         <Route path="plans" element={<PLan_Layout />}>
           <Route path="" element={<Plans />} />
-          <Route path="create-plan" element={<CreatePLan />} />
+          <Route path="create-plan" element={<CreatePLanPage />} />
         </Route>
         <Route path="codes" element={<Codes />} />
         <Route path="payments" element={<Payments />} />

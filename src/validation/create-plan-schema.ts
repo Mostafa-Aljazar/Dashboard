@@ -1,19 +1,3 @@
-// import { z } from "zod";
-
-// export const CreatePlanSchema = z.object({
-//   name: z
-//     .string({ required_error: "required" })
-//     .min(1, "name must be more than 3 char"),
-//   description: z
-//     .string({ required_error: "description is required" })
-//     .min(1, "description must be more than 5 char"),
-//   monthly_price: z.number().optional(),
-//   annual_price: z.number().optional(),
-//   is_active: z.boolean(),
-//   is_featured: z.boolean(),
-//   order: z.number().optional(),
-// });
-
 import { z } from "zod";
 
 // Define the `Settings` schema
@@ -56,7 +40,9 @@ export const CreatePlanSchema = z.object({
   name: z
     .string({ required_error: "name is required" })
     .min(1, "name must be more than 1 character"),
+  name_en: z.string(),
   description: z.string(),
+  description_en: z.string(),
   monthly_price: z
     .number()
     .min(0, { message: "Monthly price must be a positive number" }),
