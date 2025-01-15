@@ -41,6 +41,7 @@ import {
   Users,
 } from "lucide-react";
 import { replace, useNavigate } from "react-router-dom";
+import { DeletePlan } from "../../api-handlers/deletePlan";
 
 function Plans() {
   // const [openedCreate, handlersCreate] = useDisclosure(false, {
@@ -60,7 +61,9 @@ function Plans() {
   // const noOfUsersPerPage = useRef(5);
 
   const navigate = useNavigate();
-  const [plans, setPlans] = useState<Plan[]>([]); // Define the type for users
+  const [idPlanDeleted, setIdPlanDeleted] = useState("");
+
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,7 +82,7 @@ function Plans() {
     };
 
     fetchData();
-  }, []);
+  }, [idPlanDeleted]);
 
   if (loading) {
     return <LoadingOverlay visible={true} />;
@@ -90,8 +93,6 @@ function Plans() {
   }
 
   const rows = plans.map((plan) => {
-    // const { date, time } = formatDate(user?.created_at.toString());
-
     return (
       <Table.Tr key={plan.id} className="border-b-[#EFEFEF]">
         {/* name */}
@@ -167,16 +168,20 @@ function Plans() {
               <Menu.Item
                 className="text-gray-700"
                 leftSection={<Trash size={20} className="text-gray-700" />}
-                // onClick={async () => {
-                //   try {
-                //     const response = await DeleteUser(user.id + "");
-                //     console.log("🚀 ~ onClick={ ~ response:", response);
-                //     setLoading(false);
-                //   } catch (err:unknown) {
-                //     setError(err?.message);
-                //     setLoading(false);
-                //   }
-                // }}
+                onClick={async () => {
+                  try {
+                    const response = await DeletePlan(plan.id);
+                    console.log(
+                      `🚀 ~ onClick={ ~ DeletePlan ${plan.id}:`,
+                      response
+                    );
+                    setIdPlanDeleted(plan.id + "");
+                    setLoading(false);
+                  } catch (err: unknown) {
+                    setError(err?.message);
+                    setLoading(false);
+                  }
+                }}
               >
                 Delete Plan
               </Menu.Item>
@@ -186,6 +191,9 @@ function Plans() {
                 leftSection={
                   <NotebookPen size={20} className="text-gray-700" />
                 }
+                onClick={() => {
+                  navigate(`/dashboard/plans/edit-plan/${plan.id}`);
+                }}
               >
                 <div
                 // onClick={() => {

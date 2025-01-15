@@ -20,6 +20,7 @@ import Settings from "./app/dashboard/settings/page";
 import Help from "./app/dashboard/help/page";
 import PLan_Layout from "./app/dashboard/plans/layout";
 import CreatePLanPage from "./app/dashboard/plans/Create-Plan/page";
+import EditPLanPage from "./app/dashboard/plans/Edit-plan/page";
 
 function Routers() {
   return (
@@ -43,6 +44,7 @@ function Routers() {
         <Route path="plans" element={<PLan_Layout />}>
           <Route path="" element={<Plans />} />
           <Route path="create-plan" element={<CreatePLanPage />} />
+          <Route path="edit-plan/:id" element={<EditPLanPage />} />
         </Route>
         <Route path="codes" element={<Codes />} />
         <Route path="payments" element={<Payments />} />

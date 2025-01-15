@@ -1,5 +1,6 @@
 import {
   Button,
+  LoadingOverlay,
   NumberInput,
   Stack,
   Switch,
@@ -8,16 +9,25 @@ import {
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { CreatePlanSchema } from "../../../../validation/create-plan-schema";
-import { CreatePlan } from "../../api-handlers/createPlan";
-import { useNavigate } from "react-router-dom";
 import {
   bio_link_blocks,
   PlanFeaturesBoolean,
   PlanFeaturesLimits,
 } from "../content";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { GetPlans } from "../../api-handlers/getPlans";
+import { Plan } from "../../../../types/get-plans-response";
+import { UpdatePlan } from "../../api-handlers/updatePlan";
 import { notifications } from "@mantine/notifications";
 
-function CreatePLanPage() {
+function EditPLanPage() {
+  const { id } = useParams<{ id: string }>();
+
+  const [planEdit, setPlanEdit] = useState<Plan>();
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -68,27 +78,70 @@ function CreatePLanPage() {
     validate: zodResolver(CreatePlanSchema),
   });
 
-  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
-    try {
-      await CreatePlan(values);
-      form.reset();
-      notifications.show({
-        title: "Plan Created Successfully",
-        message: `The Plan ${values.name} is created now !🌟`,
-        position: "top-right",
-      });
-      navigate("/dashboard/plans");
-    } catch (error: unknown) {
-      notifications.show({
-        title: "Error creating plan:",
-        message:
-          error?.response?.data?.message ||
-          `Failed to create plan  ${values.name}.`,
-        color: "red",
-        position: "top-right",
+  // get all Plans
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await GetPlans();
+        // console.log("🚀 ~ GetPlans from EditPLanPage:", response);
+
+        setPlans(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err?.message || "An error occurred");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  // find Plan by id
+  useEffect(() => {
+    if (plans.length > 0) {
+      const getPlan = plans.find((plan) => plan.id.toString() === id);
+      setPlanEdit(getPlan);
+    }
+  }, [id, plans]);
+
+  useEffect(() => {
+    if (planEdit) {
+      // Merge defaults with API values
+      const mergedBioLinkBlocks = {
+        ...bio_link_blocks, // Default values
+        ...planEdit.settings.enabled_bio_link_blocks, // Overwrite with API values
+      };
+
+      form.setValues({
+        name_en: planEdit.name_en || "name_en",
+        description_en: planEdit.description_en || "description_en",
+        name: planEdit.name,
+        description: planEdit.description,
+        monthly_price: planEdit.monthly_price,
+        annual_price: planEdit.annual_price,
+        is_active: planEdit.is_active,
+        is_featured: planEdit.is_featured,
+        order: planEdit.order,
+        settings: {
+          ...planEdit.settings,
+          enabled_bio_link_blocks: mergedBioLinkBlocks,
+        },
       });
     }
-  });
+  }, [planEdit]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingOverlay visible={true} />
+        <Text>Loading plan details...</Text>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <Text c="red">Error: {error}</Text>;
+  }
 
   const PlanFeaturesLimitsElements = () => {
     return (
@@ -129,7 +182,8 @@ function CreatePLanPage() {
                   <span className="text-xs">{item.description}</span>
                 }
                 key={form.key(item.formKey)}
-                {...form.getInputProps(item.formKey)}
+                // {...form.getInputProps(item.formKey)}
+                {...form.getInputProps(item.formKey, { type: "checkbox" })}
               />
             );
           })}
@@ -146,16 +200,43 @@ function CreatePLanPage() {
             className="w-[calc(50%-8px)] "
             key={form.key(`settings.enabled_bio_link_blocks.${key}`)}
             label={key}
-            {...form.getInputProps(`settings.enabled_bio_link_blocks.${key}`)}
+            {...form.getInputProps(`settings.enabled_bio_link_blocks.${key}`, {
+              type: "checkbox",
+            })}
+            // {...form.getInputProps(item.formKey, { type: "checkbox" })}
           />
         ))}
       </div>
     );
   };
 
+  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
+    try {
+      const response = await UpdatePlan(`${id}`, values);
+      console.log("Plan Updated Successfully:", response);
+      form.reset();
+      navigate("/dashboard/plans");
+      notifications.show({
+        title: "Plan Updated Successfully",
+        message: `The Plan ${planEdit?.name} is updated now !🌟`,
+        position: "top-right",
+        color: "blue",
+      });
+    } catch (error: unknown) {
+      notifications.show({
+        title: "Error",
+        message:
+          error?.response?.data?.message ||
+          `Failed to update plan  ${planEdit?.name}.`,
+        color: "red",
+        position: "top-right",
+      });
+    }
+  });
+
   return (
     <div className="w-full flex flex-col">
-      <Text className="font-normal text-3xl ">Create New Plan</Text>
+      <Text className="font-normal text-3xl ">Edit Plan {planEdit?.id}</Text>
       <form
         onSubmit={handleSubmit}
         className="mt-10 w-full flex flex-col  gap-3 px-3 "
@@ -201,7 +282,7 @@ function CreatePLanPage() {
             size="xs"
             label={<div className="text-base">Status</div>}
             key={form.key("is_active")}
-            {...form.getInputProps("is_active")}
+            {...form.getInputProps("is_active", { type: "checkbox" })}
           />
         </div>
         <Stack className="mt-5 flex flex-col w-full">
@@ -213,18 +294,18 @@ function CreatePLanPage() {
           <div className="w-full flex flex-row gap-10 mt-10 ">
             {PlanFeaturesBooleanElements()}
           </div>
-          {/* Biolink Blocks */}
+          {/* Bio link Blocks */}
           <div className="mt-10 w-full flex flex-col gap-4">
-            <Text className="text-xl">Biolink Blocks</Text>
+            <Text className="text-xl">Bio link Blocks</Text>
             {BioLinkBlocksBooleanElements()}
           </div>
         </Stack>
         <Button className="mt-5" type="submit">
-          Create
+          Update Plan
         </Button>
       </form>
     </div>
   );
 }
 
-export default CreatePLanPage;
+export default EditPLanPage;
