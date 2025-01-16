@@ -5,7 +5,6 @@ import Dashboard from "./app/dashboard/home/page";
 import Dashboard_Layout from "./app/dashboard/layout";
 import Users from "./app/dashboard/users/page";
 import UsersLog from "./app/dashboard/users-logs/page";
-import UsersNotifications from "./app/dashboard/users-notifications/page";
 import UsersLinks from "./app/dashboard/users-links/page";
 import BioThemes from "./app/dashboard/bio-themes/page";
 import QrCodes from "./app/dashboard/qr-codes/page";
@@ -21,6 +20,9 @@ import Help from "./app/dashboard/help/page";
 import PLan_Layout from "./app/dashboard/plans/layout";
 import CreatePLanPage from "./app/dashboard/plans/Create-Plan/page";
 import EditPLanPage from "./app/dashboard/plans/Edit-plan/page";
+import Notifications_Layout from "./app/dashboard/users-notifications/layout";
+import CreateNotification from "./app/dashboard/users-notifications/Create-Notifications/page";
+import UsersNotifications from "./app/dashboard/users-notifications/notifications/page";
 
 function Routers() {
   return (
@@ -29,14 +31,15 @@ function Routers() {
       <Route path="auth" element={<AuthLayout />}>
         <Route index element={<Navigate to={"/auth/login"} />} />
         <Route path="login" element={<Login />} />
-        {/* <Route path="otp" element={<OTP />} /> */}
       </Route>
-      {/* <Route path="/" element={<div className="bg-gray-600">home</div>}></Route> */}
       <Route path="dashboard" element={<Dashboard_Layout />}>
         <Route path="" element={<Dashboard />} />
         <Route path="users" element={<Users />} />
         <Route path="users-log" element={<UsersLog />} />
-        <Route path="users-notifications" element={<UsersNotifications />} />
+        <Route path="users-notifications" element={<Notifications_Layout />}>
+          <Route path="" element={<UsersNotifications />} />
+          <Route path="create-notification" element={<CreateNotification />} />
+        </Route>
         <Route path="users-links" element={<UsersLinks />} />
         <Route path="bio-themes" element={<BioThemes />} />
         <Route path="qr-codes" element={<QrCodes />} />
