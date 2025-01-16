@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { User } from "../../../types/get-users-response";
 import { formatDate } from "../../../utils/DateFormate";
-import { GetUserPagination } from "../api-handlers/getUsers";
+import { GetUserData, GetUserPagination } from "../api-handlers/getUsers";
 import { useDisclosure } from "@mantine/hooks";
 // import { GetInterests } from "../api-handlers/getInterests";
 // import { Interest } from "../../../types/get-interests-response";
@@ -36,8 +36,16 @@ import { DeleteUser } from "../api-handlers/deleteUser";
 import { BlockUser } from "../api-handlers/blockUser";
 import EditUserModal from "./components/edit-user-modal";
 import { GetUser } from "../api-handlers/getUser";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 function Users() {
+  const queryClient = useQueryClient();
+
   const [openedCreate, handlersCreate] = useDisclosure(false, {
     onOpen: () => console.log("Opened"),
     onClose: () => console.log("Closed"),
@@ -48,50 +56,51 @@ function Users() {
   });
 
   const idUserEdit = useRef("");
-
   const [activePage, setPage] = useState(1);
-  const noOfPages = useRef(0);
-  const noOfTotalUsers = useRef(0);
   const noOfUsersPerPage = useRef(5);
 
-  const [users, setUsers] = useState<User[]>([]); // Define the type for users
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["users", activePage],
+    queryFn: () =>
+      GetUserPagination({
+        per_page: noOfUsersPerPage.current,
+        page: activePage,
+      }),
+    placeholderData: keepPreviousData, // Use keepPreviousData here
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await GetUserPagination({
-          per_page: noOfUsersPerPage.current,
-          page: activePage,
-        });
-        // console.log("🚀 ~ GetUserData pagination:", data.pagination);
-        noOfPages.current = data.pagination.last_page;
-        noOfTotalUsers.current = data.pagination.total;
+  const deleteMutation = useMutation({
+    mutationFn: DeleteUser,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      console.log("🚀 ~ Delete User Successfully");
+    },
+  });
 
-        // console.log("🚀 ~   noOfPages.current:", noOfPages.current);
-        // setUsers(data.slice(-8).reverse()); // Get Last 8 users
-        setUsers(data.data); // Get Last 8 users
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
+  const blockMutation = useMutation({
+    mutationFn: BlockUser,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      console.log("🚀 ~ Block User Successfully");
+    },
+  });
 
-    fetchData();
-  }, [activePage]);
-
-
-  if (loading) {
-    return <LoadingOverlay visible={true} />;
+  if (isLoading) {
+    return <LoadingOverlay visible />;
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (isError) {
+    return <Text color="red">Error: {error?.message}</Text>;
   }
 
-  const rows = users.map((user) => {
+  const users = data?.data;
+  const totalPages = data?.pagination?.last_page || 0;
+  const totalUsers = data?.pagination?.total || 0;
+
+  console.log("🚀 ~   queryFn: () => GetUserData():", data);
+  const rows = users?.map((user) => {
     const { date, time } = formatDate(user?.created_at.toString());
 
     return (
@@ -198,14 +207,15 @@ function Users() {
                 className="text-gray-700"
                 leftSection={<UserX size={20} className="text-gray-700" />}
                 onClick={async () => {
-                  try {
-                    const response = await DeleteUser(user.id + "");
-                    console.log("🚀 ~ onClick={ ~ response:", response);
-                    setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
-                    setLoading(false);
-                  }
+                  deleteMutation.mutate(user.id + "");
+                  //   try {
+                  //     const response = await DeleteUser(user.id + "");
+                  //     console.log("🚀 ~ onClick={ ~ response:", response);
+                  //     setLoading(false);
+                  //   } catch (err) {
+                  //     setError(err.message);
+                  //     setLoading(false);
+                  //   }
                 }}
               >
                 Delete User
@@ -214,14 +224,7 @@ function Users() {
                 className="text-gray-700"
                 leftSection={<CircleX size={20} className="text-gray-700" />}
                 onClick={async () => {
-                  try {
-                    const response = await BlockUser(user.id + "");
-                    console.log("🚀 ~ onClick={ ~ response:", response);
-                    setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
-                    setLoading(false);
-                  }
+                  blockMutation.mutate(user.id + "");
                 }}
               >
                 Block User
@@ -295,16 +298,13 @@ function Users() {
           Showing{" "}
           <span className="font-bold">
             {(activePage - 1) * noOfUsersPerPage.current + 1} -{" "}
-            {activePage * noOfUsersPerPage.current > noOfTotalUsers.current
-              ? noOfTotalUsers.current
-              : activePage * noOfUsersPerPage.current}
+            {Math.min(activePage * noOfUsersPerPage.current, totalUsers)}
           </span>{" "}
-          out of <span className="font-bold"> {noOfTotalUsers.current} </span>{" "}
-          results.
+          out of <span className="font-bold">{totalUsers}</span> results.
         </Text>
 
         <Pagination
-          total={noOfPages.current}
+          total={totalPages}
           value={activePage}
           onChange={setPage}
           mt="sm"
