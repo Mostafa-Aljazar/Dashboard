@@ -1,7 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@mantine/core/styles.css";
+
+
 import "@mantine/notifications/styles.css";
+
 import "@fontsource/inter/index.css";
 import "./index.css";
 import App from "./App.tsx";
@@ -12,7 +15,13 @@ import { MantineProvider } from "@mantine/core";
 import { theme } from "./lib/mantine/theme.ts";
 import { Notifications } from "@mantine/notifications";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

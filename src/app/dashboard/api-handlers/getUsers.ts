@@ -3,7 +3,7 @@ import { GetUsersResponse } from "../../../types/get-users-response";
 
 export const GetUserData = async () => {
   const response = await LinkatikApi.get<GetUsersResponse>(`users`);
-  return response.data.data;
+  return response.data;
 };
 
 export const GetUserPagination = async ({
