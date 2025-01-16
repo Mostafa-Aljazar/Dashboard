@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./app/auth/login/page";
 import AuthLayout from "./app/auth/layout";
-import OTP from "./app/auth/otp/page";
 import Dashboard from "./app/dashboard/home/page";
 import Dashboard_Layout from "./app/dashboard/layout";
 import Users from "./app/dashboard/users/page";
@@ -11,7 +10,7 @@ import UsersLinks from "./app/dashboard/users-links/page";
 import BioThemes from "./app/dashboard/bio-themes/page";
 import QrCodes from "./app/dashboard/qr-codes/page";
 import Domains from "./app/dashboard/domains/page";
-import Plans from "./app/dashboard/plans/page";
+import Plans from "./app/dashboard/plans/All-Plans/page";
 import Codes from "./app/dashboard/codes/page";
 import Payments from "./app/dashboard/payments/page";
 import Statistics from "./app/dashboard/statistics/page";
@@ -19,6 +18,9 @@ import ApiDocs from "./app/dashboard/api-docs/page";
 import Broadcasts from "./app/dashboard/broadcasts/page";
 import Settings from "./app/dashboard/settings/page";
 import Help from "./app/dashboard/help/page";
+import PLan_Layout from "./app/dashboard/plans/layout";
+import CreatePLanPage from "./app/dashboard/plans/Create-Plan/page";
+import EditPLanPage from "./app/dashboard/plans/Edit-plan/page";
 
 function Routers() {
   return (
@@ -39,7 +41,11 @@ function Routers() {
         <Route path="bio-themes" element={<BioThemes />} />
         <Route path="qr-codes" element={<QrCodes />} />
         <Route path="domains" element={<Domains />} />
-        <Route path="plans" element={<Plans />} />
+        <Route path="plans" element={<PLan_Layout />}>
+          <Route path="" element={<Plans />} />
+          <Route path="create-plan" element={<CreatePLanPage />} />
+          <Route path="edit-plan/:id" element={<EditPLanPage />} />
+        </Route>
         <Route path="codes" element={<Codes />} />
         <Route path="payments" element={<Payments />} />
         <Route path="statistics" element={<Statistics />} />

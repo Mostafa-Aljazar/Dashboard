@@ -20,7 +20,6 @@ import { GetInterests } from "../../api-handlers/getInterests";
 import { Interest } from "../../../../types/get-interests-response";
 import { useForm, zodResolver } from "@mantine/form";
 import { CreateUserSchema } from "../../../../validation/create-user-schema";
-// import { CreateUser } from "../../api-handlers/createUser";
 import { GetUser } from "../../api-handlers/getUser";
 import { UpdateUser } from "../../api-handlers/updateUser";
 
@@ -33,7 +32,6 @@ function EditUserModal({
   opened: boolean;
   onClose: () => void;
 }) {
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [PlansData, setPlansData] = useState<Plan[]>([]);
@@ -63,10 +61,10 @@ function EditUserModal({
       alert("User Updated successfully!");
       form.reset();
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Error Updating user:",
-        error.response?.data || error.message
+        error?.response?.data || error?.message
       );
       alert("Failed to update user. Please try again.");
     }
@@ -77,9 +75,8 @@ function EditUserModal({
       try {
         const [plansResponse, interestsResponse, userResponse] =
           await Promise.all([GetPlans(), GetInterests(), GetUser(userId)]);
-        // console.log("🚀 ~ fetchData ~ userResponse:", userResponse);
 
-        if (userResponse?.success) {
+        if (userResponse && userResponse?.success) {
           form.setValues({
             is_active: userResponse?.data?.is_active == 1 ? true : false,
             email: userResponse?.data?.email || "",
@@ -96,8 +93,8 @@ function EditUserModal({
         setInterestData(interestsResponse.data);
 
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };
@@ -222,8 +219,6 @@ function EditUserModal({
               variant="filled"
               className="w-full"
               defaultValue={InterestData[0].id + ""}
-              //   value={value}
-              //   onChange={(event) => setValue(event.currentTarget.value)}
               data={InterestData.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}
@@ -236,8 +231,6 @@ function EditUserModal({
               }
               variant="filled"
               className="w-full"
-              // value={value}
-              //   onChange={(event) => setValue(event.currentTarget.value)}
               data={InterestData.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}

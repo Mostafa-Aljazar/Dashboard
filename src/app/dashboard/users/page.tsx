@@ -12,10 +12,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { LoadingOverlay } from "@mantine/core";
 import {
-  Calendar,
   Check,
   CircleX,
-  Clock9,
   EllipsisVertical,
   LogOut,
   UserPen,
@@ -35,6 +33,7 @@ import CreateUserModal from "./components/create-user-modal";
 import { DeleteUser } from "../api-handlers/deleteUser";
 import { BlockUser } from "../api-handlers/blockUser";
 import EditUserModal from "./components/edit-user-modal";
+
 import { GetUser } from "../api-handlers/getUser";
 import {
   keepPreviousData,
@@ -42,6 +41,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+
+
 
 function Users() {
   const queryClient = useQueryClient();
@@ -59,6 +60,7 @@ function Users() {
   const [activePage, setPage] = useState(1);
   const noOfUsersPerPage = useRef(5);
 
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users", activePage],
     queryFn: () =>
@@ -67,6 +69,7 @@ function Users() {
         page: activePage,
       }),
     placeholderData: keepPreviousData, // Use keepPreviousData here
+  });
   });
 
   const deleteMutation = useMutation({
@@ -143,19 +146,8 @@ function Users() {
         </Table.Td>
         <Table.Td>
           <div className="flex flex-row flex-wrap items-center justify-evenly">
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Calendar size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"LogOut"} position="top" offset={-10}>
+           
+            <Tooltip label={"Login Type"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
@@ -167,19 +159,8 @@ function Users() {
                 <LogOut size={20} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={"Clock9"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Clock9 size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
+          
+            <Tooltip label={"login to user page"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
@@ -208,14 +189,6 @@ function Users() {
                 leftSection={<UserX size={20} className="text-gray-700" />}
                 onClick={async () => {
                   deleteMutation.mutate(user.id + "");
-                  //   try {
-                  //     const response = await DeleteUser(user.id + "");
-                  //     console.log("🚀 ~ onClick={ ~ response:", response);
-                  //     setLoading(false);
-                  //   } catch (err) {
-                  //     setError(err.message);
-                  //     setLoading(false);
-                  //   }
                 }}
               >
                 Delete User

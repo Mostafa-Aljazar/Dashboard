@@ -1,13 +1,9 @@
 import {
   AppShell,
   Burger,
-  Button,
-  Drawer,
-  Flex,
   Group,
   Image,
   ScrollArea,
-  Skeleton,
 } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 import images from "../../assets";

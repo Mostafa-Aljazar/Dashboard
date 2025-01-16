@@ -1,13 +1,18 @@
-import { ActionIcon, Menu, Table, Text, Title, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Menu,
+  Table,
+  Text,
+  Title,
+  Tooltip,
+} from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { GetUserData } from "../../api-handlers/getUsers";
+import {  GetUserData } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
 import {
-  Calendar,
   Check,
   CircleX,
-  Clock9,
   EllipsisVertical,
   LogOut,
   UserPen,
@@ -40,8 +45,8 @@ function LatestUsers() {
         const data = await GetUserData();
         setUsers(data.slice(-8).reverse()); // Get Last 8 users
         setLoading(false);
-      } catch (err) {
-        setError(err.message);
+      } catch (err:unknown) {
+        setError(err?.message);
         setLoading(false);
       }
     };
@@ -100,19 +105,7 @@ function LatestUsers() {
         </Table.Td>
         <Table.Td>
           <div className="flex flex-row flex-wrap items-center justify-evenly">
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Calendar size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"LogOut"} position="top" offset={-10}>
+          <Tooltip label={"Login Type"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
@@ -124,19 +117,8 @@ function LatestUsers() {
                 <LogOut size={20} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={"Clock9"} position="top" offset={-10}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Clock9 size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={"Calendar"} position="top" offset={-10}>
+          
+            <Tooltip label={"login to user page"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
                 className="border-none"
@@ -168,8 +150,8 @@ function LatestUsers() {
                     const response = await DeleteUser(user.id + "");
                     console.log("🚀 ~ onClick={ ~ response:", response);
                     setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
+                  } catch (err:unknown) {
+                    setError(err?.message);
                     setLoading(false);
                   }
                 }}
@@ -184,8 +166,8 @@ function LatestUsers() {
                     const response = await BlockUser(user.id + "");
                     console.log("🚀 ~ onClick={ ~ response:", response);
                     setLoading(false);
-                  } catch (err) {
-                    setError(err.message);
+                  } catch (err:unknown) {
+                    setError(err?.message);
                     setLoading(false);
                   }
                 }}

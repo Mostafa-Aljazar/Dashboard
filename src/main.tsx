@@ -1,6 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@mantine/core/styles.css";
+
+
+import "@mantine/notifications/styles.css";
+
 import "@fontsource/inter/index.css";
 import "./index.css";
 import App from "./App.tsx";
@@ -9,6 +13,7 @@ import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter from r
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import React Query
 import { MantineProvider } from "@mantine/core";
 import { theme } from "./lib/mantine/theme.ts";
+import { Notifications } from "@mantine/notifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +29,8 @@ createRoot(document.getElementById("root")!).render(
       <NuqsAdapter>
         <QueryClientProvider client={queryClient}>
           <MantineProvider theme={theme} withGlobalClasses withCssVariables>
+            <Notifications />
+
             {/* <MantineProvider> */}
             <App />
           </MantineProvider>
