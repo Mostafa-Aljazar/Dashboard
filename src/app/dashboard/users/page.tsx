@@ -9,7 +9,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { LoadingOverlay } from "@mantine/core";
 import {
   Check,
@@ -21,32 +21,24 @@ import {
   UserX,
   X,
 } from "lucide-react";
-import { User } from "../../../types/get-users-response";
 import { formatDate } from "../../../utils/DateFormate";
-import { GetUserData, GetUserPagination } from "../api-handlers/getUsers";
+import { GetUserPagination } from "../api-handlers/getUsers";
 import { useDisclosure } from "@mantine/hooks";
-// import { GetInterests } from "../api-handlers/getInterests";
-// import { Interest } from "../../../types/get-interests-response";
-// import { GetPlans } from "../api-handlers/getPlans";
-// import { Plan } from "../../../types/get-plans-response";
+
 import CreateUserModal from "./components/create-user-modal";
 import { DeleteUser } from "../api-handlers/deleteUser";
 import { BlockUser } from "../api-handlers/blockUser";
 import EditUserModal from "./components/edit-user-modal";
 
-import { GetUser } from "../api-handlers/getUser";
 import {
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-
-
+import { notifications } from "@mantine/notifications";
 
 function Users() {
-  const queryClient = useQueryClient();
-
   const [openedCreate, handlersCreate] = useDisclosure(false, {
     onOpen: () => console.log("Opened"),
     onClose: () => console.log("Closed"),
@@ -56,20 +48,19 @@ function Users() {
     onClose: () => console.log("Closed"),
   });
 
+  const queryClient = useQueryClient();
   const idUserEdit = useRef("");
-  const [activePage, setPage] = useState(1);
+  const [activePage, setActivePage] = useState(1);
   const noOfUsersPerPage = useRef(5);
-
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users", activePage],
     queryFn: () =>
       GetUserPagination({
-        per_page: noOfUsersPerPage.current,
+        per_page: 15,
         page: activePage,
       }),
     placeholderData: keepPreviousData, // Use keepPreviousData here
-  });
   });
 
   const deleteMutation = useMutation({
@@ -77,7 +68,20 @@ function Users() {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      console.log("🚀 ~ Delete User Successfully");
+      // console.log("🚀 ~ Delete User Successfully");
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `The User has been deleted! 🌟`,
+        position: "top-right",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `The User cannot be deleted.! \n ${deleteMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
     },
   });
 
@@ -86,7 +90,20 @@ function Users() {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      console.log("🚀 ~ Block User Successfully");
+      // console.log("🚀 ~ Block User Successfully");
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `The User has been blocked/unblocked! 🌟`,
+        position: "top-right",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `The User cannot be blocked/unblocked.! \n ${blockMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
     },
   });
 
@@ -102,7 +119,6 @@ function Users() {
   const totalPages = data?.pagination?.last_page || 0;
   const totalUsers = data?.pagination?.total || 0;
 
-  console.log("🚀 ~   queryFn: () => GetUserData():", data);
   const rows = users?.map((user) => {
     const { date, time } = formatDate(user?.created_at.toString());
 
@@ -146,7 +162,6 @@ function Users() {
         </Table.Td>
         <Table.Td>
           <div className="flex flex-row flex-wrap items-center justify-evenly">
-           
             <Tooltip label={"Login Type"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
@@ -159,7 +174,7 @@ function Users() {
                 <LogOut size={20} />
               </ActionIcon>
             </Tooltip>
-          
+
             <Tooltip label={"login to user page"} position="top" offset={-5}>
               <ActionIcon
                 bg={""}
@@ -279,7 +294,7 @@ function Users() {
         <Pagination
           total={totalPages}
           value={activePage}
-          onChange={setPage}
+          onChange={setActivePage}
           mt="sm"
         />
       </Group>

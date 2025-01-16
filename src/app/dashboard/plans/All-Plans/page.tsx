@@ -7,9 +7,8 @@ import {
   Table,
   Text,
   Title,
-  Tooltip,
 } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { LoadingOverlay } from "@mantine/core";
 // import {
 //   Check,
@@ -29,8 +28,7 @@ import { LoadingOverlay } from "@mantine/core";
 // import { DeleteUser } from "../api-handlers/deleteUser";
 // import { BlockUser } from "../api-handlers/blockUser";
 // import EditUserModal from "./components/edit-user-modal";
-import { Plan } from "../../../../types/get-plans-response";
-import { GetPlans } from "../../api-handlers/getPlans";
+import { GetPlansPagination } from "../../api-handlers/getPlans";
 import {
   EllipsisVertical,
   Eye,
@@ -40,8 +38,15 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DeletePlan } from "../../api-handlers/deletePlan";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 function Plans() {
   // const [openedCreate, handlersCreate] = useDisclosure(false, {
@@ -60,39 +65,65 @@ function Plans() {
   // const noOfTotalUsers = useRef(0);
   // const noOfUsersPerPage = useRef(5);
 
+  // const queryClient = useQueryClient();/
+
   const navigate = useNavigate();
-  const [idPlanDeleted, setIdPlanDeleted] = useState("");
+  // const [idPlanDeleted, setIdPlanDeleted] = useState("");
 
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [plans, setPlans] = useState<Plan[]>([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await GetPlans();
-        console.log("🚀 ~ GetPlans:", response);
+  const queryClient = useQueryClient();
+  // const idPlanEdit = useRef("");
+  const [activePage, setActivePage] = useState(1);
+  const noOfPlansPerPage = useRef(15);
 
-        setPlans(response.data);
-        setLoading(false);
-      } catch (err: unknown) {
-        setError(err?.message);
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["plans", activePage],
+    queryFn: () =>
+      GetPlansPagination({
+        per_page: noOfPlansPerPage.current,
+        page: activePage,
+      }),
+    placeholderData: keepPreviousData, // Use keepPreviousData here
+  });
 
-    fetchData();
-  }, [idPlanDeleted]);
+  const deleteMutation = useMutation({
+    mutationFn: DeletePlan,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["plans"] });
+      // console.log("🚀 ~ Delete Plan Successfully");
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `The Plan has been deleted! 🌟`,
+        position: "top-right",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `The Plan cannot be deleted.! \n ${deleteMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
+    },
+  });
 
-  if (loading) {
-    return <LoadingOverlay visible={true} />;
+  if (isLoading) {
+    return <LoadingOverlay visible />;
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (isError) {
+    return <Text color="red">Error: {error?.message}</Text>;
   }
 
-  const rows = plans.map((plan) => {
+  const plans = data?.data;
+  const totalPages = data?.pagination?.last_page || 0;
+  const totalPlans = data?.pagination?.total || 0;
+
+  const rows = plans?.map((plan) => {
     return (
       <Table.Tr key={plan.id} className="border-b-[#EFEFEF]">
         {/* name */}
@@ -147,7 +178,7 @@ function Plans() {
           ) : (
             <Text
               variant="filled"
-              className=" text-[#7A5A1B]  bg-[#FCECAD] w-fit flex flex-row items-center justify-center gap-2 px-3   rounded-md"
+              className=" text-[#7A5A1B]  bg-[#FCECAD] w-fit flex flex-row items-center justify-center gap-2 px-3   rounded-md py-1"
             >
               <EyeOff size={15} strokeWidth={2} absoluteStrokeWidth />
               <span className="text-sm">Disabled</span>
@@ -169,18 +200,7 @@ function Plans() {
                 className="text-gray-700"
                 leftSection={<Trash size={20} className="text-gray-700" />}
                 onClick={async () => {
-                  try {
-                    const response = await DeletePlan(plan.id);
-                    console.log(
-                      `🚀 ~ onClick={ ~ DeletePlan ${plan.id}:`,
-                      response
-                    );
-                    setIdPlanDeleted(plan.id + "");
-                    setLoading(false);
-                  } catch (err: unknown) {
-                    setError(err?.message);
-                    setLoading(false);
-                  }
+                  deleteMutation.mutate(plan.id);
                 }}
               >
                 Delete Plan
@@ -195,14 +215,7 @@ function Plans() {
                   navigate(`/dashboard/plans/edit-plan/${plan.id}`);
                 }}
               >
-                <div
-                // onClick={() => {
-                //   idUserEdit.current = `${user.id}`;
-                //   handlersEdit.open();
-                // }}
-                >
-                  Edit Plan
-                </div>
+                Edit Plan
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
@@ -253,6 +266,23 @@ function Plans() {
           </Table>
         </Table.ScrollContainer>
       </div>
+      <Group justify="space-between" className="px-5">
+        <Text className="text-[#8938B2] text-sm">
+          Showing{" "}
+          <span className="font-bold">
+            {(activePage - 1) * noOfPlansPerPage.current + 1} -{" "}
+            {Math.min(activePage * noOfPlansPerPage.current, totalPlans)}
+          </span>{" "}
+          out of <span className="font-bold">{totalPlans}</span> results.
+        </Text>
+
+        <Pagination
+          total={totalPages}
+          value={activePage}
+          onChange={setActivePage}
+          mt="sm"
+        />
+      </Group>
 
       {/*
       <Group justify="space-between" className="px-5">
@@ -275,15 +305,15 @@ function Plans() {
           mt="sm"
         />
       </Group>
-
-      <>
+*/}
+      {/* <>
         <EditUserModal
           userId={idUserEdit.current}
           opened={openedEdit}
           onClose={handlersEdit.close}
         />
         <CreateUserModal opened={openedCreate} onClose={handlersCreate.close} />
-      </> */}
+      </>  */}
     </div>
   );
 }

@@ -1,13 +1,6 @@
-import {
-  ActionIcon,
-  Menu,
-  Table,
-  Text,
-  Title,
-  Tooltip,
-} from "@mantine/core";
+import { ActionIcon, Menu, Table, Text, Title, Tooltip } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import {  GetUserData } from "../../api-handlers/getUsers";
+import { GetUserData, GetUserPagination } from "../../api-handlers/getUsers";
 import { LoadingOverlay } from "@mantine/core";
 import { formatDate } from "../../../../utils/DateFormate";
 import {
@@ -25,6 +18,13 @@ import { DeleteUser } from "../../api-handlers/deleteUser";
 import { BlockUser } from "../../api-handlers/blockUser";
 import { useDisclosure } from "@mantine/hooks";
 import EditUserModal from "../../users/components/edit-user-modal";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 function LatestUsers() {
   const [openedEdit, handlersEdit] = useDisclosure(false, {
@@ -32,168 +32,239 @@ function LatestUsers() {
     onClose: () => console.log("Closed"),
   });
 
+  const queryClient = useQueryClient();
   const idUserEdit = useRef("");
 
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: () =>
+      GetUserPagination({
+        per_page: 1000000,
+        page: 1,
+      }),
+    placeholderData: keepPreviousData, // Use keepPreviousData here
+  });
 
-  const [users, setUsers] = useState<User[]>([]); // Define the type for users
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const deleteMutation = useMutation({
+    mutationFn: DeleteUser,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      // console.log("🚀 ~ Delete User Successfully");
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `The User has been deleted! 🌟`,
+        position: "top-right",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `The User cannot be deleted.! \n ${deleteMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
+    },
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await GetUserData();
-        setUsers(data.slice(-8).reverse()); // Get Last 8 users
-        setLoading(false);
-      } catch (err:unknown) {
-        setError(err?.message);
-        setLoading(false);
-      }
-    };
+  const blockMutation = useMutation({
+    mutationFn: BlockUser,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      // console.log("🚀 ~ Block User Successfully");
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `The User has been blocked/unblocked! 🌟`,
+        position: "top-right",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `The User cannot be blocked/unblocked.! \n ${blockMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
+    },
+  });
 
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <LoadingOverlay visible={true} />;
+  if (isLoading) {
+    return <LoadingOverlay visible />;
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (isError) {
+    return <Text color="red">Error: {error?.message}</Text>;
   }
 
-  const rows = users.map((user) => {
-    const { date, time } = formatDate(user?.created_at.toString());
+  const users = data?.data;
+  // const totalPages = data?.pagination?.last_page || 0;
+  // const totalUsers = data?.pagination?.total || 0;
 
-    return (
-      <Table.Tr key={user.id} className="border-b-[#EFEFEF]">
-        <Table.Td>
-          <div className="flex flex-col">
-            <span className="text-[#454545] text-sm">{user.name}</span>
-            <span>{user.email}</span>
-          </div>
-        </Table.Td>
-        <Table.Td>
-          {user.is_active ? (
-            <Text
-              variant="filled"
-              className=" text-[#78A58C] bg-[#B5E4CA] flex flex-row gap-1 p-1 w-20 md:gap-3 md:w-28 rounded-lg items-center"
-            >
-              <Check size={20} strokeWidth={2} absoluteStrokeWidth />
-              <span className="">Active</span>
-            </Text>
-          ) : (
-            <Text
-              variant="filled"
-              className=" text-[#a57878] bg-[#e4b5b5] flex flex-row gap-3 p-1 w-28 rounded-lg items-center"
-            >
-              <X size={14} />
-              <span className="text-sm">Not Active</span>
-            </Text>
-          )}
-        </Table.Td>
-        <Table.Td>
-          <span className="text-black px-4 py-1 rounded-md bg-[#CABDFF] text-base">
-            {user.plan?.name}
-          </span>
-        </Table.Td>
-        <Table.Td>
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-[#FF6A55] text-sm">{date}</span>
-            <span className="text-[#FF6A55] text-xs">{time}</span>
-          </div>
-        </Table.Td>
-        <Table.Td>
-          <div className="flex flex-row flex-wrap items-center justify-evenly">
-          <Tooltip label={"Login Type"} position="top" offset={-5}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <LogOut size={20} />
-              </ActionIcon>
-            </Tooltip>
-          
-            <Tooltip label={"login to user page"} position="top" offset={-5}>
-              <ActionIcon
-                bg={""}
-                className="border-none"
-                variant="default"
-                size="lg"
-                radius="xl"
-                aria-label="Settings"
-              >
-                <UserPlus size={20} />
-              </ActionIcon>
-            </Tooltip>
-          </div>
-        </Table.Td>
-        <Table.Td>
-          <Menu shadow="md" width={250} position="top">
-            <Menu.Target>
-              <ActionIcon variant="transparent" aria-label="Settings">
-                <EllipsisVertical className="text-[#6F767E]" />
-              </ActionIcon>
-            </Menu.Target>
+  // const [users, setUsers] = useState<User[]>([]); // Define the type for users
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
-            <Menu.Dropdown>
-              <Menu.Label className="text-base">Actions</Menu.Label>
-              <Menu.Item
-                className="text-gray-700"
-                leftSection={<UserX size={20} className="text-gray-700" />}
-                onClick={async () => {
-                  try {
-                    const response = await DeleteUser(user.id + "");
-                    console.log("🚀 ~ onClick={ ~ response:", response);
-                    setLoading(false);
-                  } catch (err:unknown) {
-                    setError(err?.message);
-                    setLoading(false);
-                  }
-                }}
-              >
-                Delete User
-              </Menu.Item>
-              <Menu.Item
-                className="text-gray-700"
-                leftSection={<CircleX size={20} className="text-gray-700" />}
-                onClick={async () => {
-                  try {
-                    const response = await BlockUser(user.id + "");
-                    console.log("🚀 ~ onClick={ ~ response:", response);
-                    setLoading(false);
-                  } catch (err:unknown) {
-                    setError(err?.message);
-                    setLoading(false);
-                  }
-                }}
-              >
-                Block User
-              </Menu.Item>
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const data = await GetUserData();
+  //       setUsers(data.data.slice(-8).reverse()); // Get Last 8 users
+  //       setLoading(false);
+  //     } catch (err: unknown) {
+  //       setError(err?.message);
+  //       setLoading(false);
+  //     }
+  //   };
 
-              <Menu.Item
-                className="text-gray-700"
-                leftSection={<UserPen size={20} className="text-gray-700" />}
+  //   fetchData();
+  // }, []);
+
+  // if (loading) {
+  //   return <LoadingOverlay visible={true} />;
+  // }
+
+  // if (error) {
+  //   return <Text c="red">Error: {error}</Text>;
+  // }
+
+  const rows = users
+    ?.slice(-8)
+    .reverse()
+    .map((user) => {
+      const { date, time } = formatDate(user?.created_at.toString());
+
+      return (
+        <Table.Tr key={user.id} className="border-b-[#EFEFEF]">
+          <Table.Td>
+            <div className="flex flex-col">
+              <span className="text-[#454545] text-sm">{user.name}</span>
+              <span>{user.email}</span>
+            </div>
+          </Table.Td>
+          <Table.Td>
+            {user.is_active ? (
+              <Text
+                variant="filled"
+                className=" text-[#78A58C] bg-[#B5E4CA] flex flex-row gap-1 p-1 w-20 md:gap-3 md:w-28 rounded-lg items-center"
               >
-                <div
-                  onClick={() => {
-                    idUserEdit.current = `${user.id}`;
-                    handlersEdit.open();
+                <Check size={20} strokeWidth={2} absoluteStrokeWidth />
+                <span className="">Active</span>
+              </Text>
+            ) : (
+              <Text
+                variant="filled"
+                className=" text-[#a57878] bg-[#e4b5b5] flex flex-row gap-3 p-1 w-28 rounded-lg items-center"
+              >
+                <X size={14} />
+                <span className="text-sm">Not Active</span>
+              </Text>
+            )}
+          </Table.Td>
+          <Table.Td>
+            <span className="text-black px-4 py-1 rounded-md bg-[#CABDFF] text-base">
+              {user.plan?.name}
+            </span>
+          </Table.Td>
+          <Table.Td>
+            <div className="flex flex-col items-center justify-center">
+              <span className="text-[#FF6A55] text-sm">{date}</span>
+              <span className="text-[#FF6A55] text-xs">{time}</span>
+            </div>
+          </Table.Td>
+          <Table.Td>
+            <div className="flex flex-row flex-wrap items-center justify-evenly">
+              <Tooltip label={"Login Type"} position="top" offset={-5}>
+                <ActionIcon
+                  bg={""}
+                  className="border-none"
+                  variant="default"
+                  size="lg"
+                  radius="xl"
+                  aria-label="Settings"
+                >
+                  <LogOut size={20} />
+                </ActionIcon>
+              </Tooltip>
+
+              <Tooltip label={"login to user page"} position="top" offset={-5}>
+                <ActionIcon
+                  bg={""}
+                  className="border-none"
+                  variant="default"
+                  size="lg"
+                  radius="xl"
+                  aria-label="Settings"
+                >
+                  <UserPlus size={20} />
+                </ActionIcon>
+              </Tooltip>
+            </div>
+          </Table.Td>
+          <Table.Td>
+            <Menu shadow="md" width={250} position="top">
+              <Menu.Target>
+                <ActionIcon variant="transparent" aria-label="Settings">
+                  <EllipsisVertical className="text-[#6F767E]" />
+                </ActionIcon>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label className="text-base">Actions</Menu.Label>
+                <Menu.Item
+                  className="text-gray-700"
+                  leftSection={<UserX size={20} className="text-gray-700" />}
+                  onClick={async () => {
+                    deleteMutation.mutate(user.id + "");
+                    // try {
+                    //   const response = await DeleteUser(user.id + "");
+                    //   console.log("🚀 ~ onClick={ ~ response:", response);
+                    //   setLoading(false);
+                    // } catch (err: unknown) {
+                    //   setError(err?.message);
+                    //   setLoading(false);
+                    // }
                   }}
                 >
-                  Edit User
-                </div>
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Table.Td>
-      </Table.Tr>
-    );
-  });
+                  Delete User
+                </Menu.Item>
+                <Menu.Item
+                  className="text-gray-700"
+                  leftSection={<CircleX size={20} className="text-gray-700" />}
+                  onClick={async () => {
+                    blockMutation.mutate(user.id + "");
+                    // try {
+                    //   const response = await BlockUser(user.id + "");
+                    //   console.log("🚀 ~ onClick={ ~ response:", response);
+                    //   setLoading(false);
+                    // } catch (err: unknown) {
+                    //   setError(err?.message);
+                    //   setLoading(false);
+                    // }
+                  }}
+                >
+                  Block User
+                </Menu.Item>
+
+                <Menu.Item
+                  className="text-gray-700"
+                  leftSection={<UserPen size={20} className="text-gray-700" />}
+                >
+                  <div
+                    onClick={() => {
+                      idUserEdit.current = `${user.id}`;
+                      handlersEdit.open();
+                    }}
+                  >
+                    Edit User
+                  </div>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Table.Td>
+        </Table.Tr>
+      );
+    });
 
   return (
     <div className="pt-10 ">

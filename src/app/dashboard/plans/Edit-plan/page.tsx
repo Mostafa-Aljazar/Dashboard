@@ -15,19 +15,20 @@ import {
   PlanFeaturesLimits,
 } from "../content";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { GetPlans } from "../../api-handlers/getPlans";
-import { Plan } from "../../../../types/get-plans-response";
+import { useEffect } from "react";
+import { GetPlansPagination } from "../../api-handlers/getPlans";
 import { UpdatePlan } from "../../api-handlers/updatePlan";
 import { notifications } from "@mantine/notifications";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 function EditPLanPage() {
   const { id } = useParams<{ id: string }>();
 
-  const [planEdit, setPlanEdit] = useState<Plan>();
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -78,31 +79,48 @@ function EditPLanPage() {
     validate: zodResolver(CreatePlanSchema),
   });
 
-  // get all Plans
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await GetPlans();
-        // console.log("🚀 ~ GetPlans from EditPLanPage:", response);
+  const queryClient = useQueryClient();
 
-        setPlans(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err?.message || "An error occurred");
-        setLoading(false);
-      }
-    };
+  const {
+    data: plans,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["plans"],
+    queryFn: () =>
+      GetPlansPagination({
+        per_page: 1000000,
+        page: 1,
+      }),
+    placeholderData: keepPreviousData, // Use keepPreviousData here
+  });
 
-    fetchData();
-  }, [id]);
+  const planEdit = plans?.data.find((plan) => plan.id.toString() === id);
 
-  // find Plan by id
-  useEffect(() => {
-    if (plans.length > 0) {
-      const getPlan = plans.find((plan) => plan.id.toString() === id);
-      setPlanEdit(getPlan);
-    }
-  }, [id, plans]);
+  const updatePlanMutation = useMutation({
+    mutationFn: (values: typeof form.values) => UpdatePlan(`${id}`, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"], id });
+      form.reset();
+      notifications.show({
+        title: "Plan Updated Successfully",
+        message: `The plan has been updated successfully.`,
+        color: "blue",
+        position: "top-right",
+      });
+      navigate("/dashboard/plans");
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error",
+        message:
+          updatePlanMutation.error?.message || "Failed to update the plan.",
+        color: "red",
+        position: "top-right",
+      });
+    },
+  });
 
   useEffect(() => {
     if (planEdit) {
@@ -130,7 +148,7 @@ function EditPLanPage() {
     }
   }, [planEdit]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <LoadingOverlay visible={true} />
@@ -139,8 +157,8 @@ function EditPLanPage() {
     );
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (isError) {
+    return <Text color="red">Error: {error.message}</Text>;
   }
 
   const PlanFeaturesLimitsElements = () => {
@@ -210,28 +228,9 @@ function EditPLanPage() {
     );
   };
 
-  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
-    try {
-      const response = await UpdatePlan(`${id}`, values);
-      console.log("Plan Updated Successfully:", response);
-      form.reset();
-      navigate("/dashboard/plans");
-      notifications.show({
-        title: "Plan Updated Successfully",
-        message: `The Plan ${planEdit?.name} is updated now !🌟`,
-        position: "top-right",
-        color: "blue",
-      });
-    } catch (error: unknown) {
-      notifications.show({
-        title: "Error",
-        message:
-          error?.response?.data?.message ||
-          `Failed to update plan  ${planEdit?.name}.`,
-        color: "red",
-        position: "top-right",
-      });
-    }
+  const handleSubmit = form.onSubmit((values: typeof form.values) => {
+    console.log("🚀 ~ EditPLanPage ~ values:", values);
+    return updatePlanMutation.mutate(values);
   });
 
   return (

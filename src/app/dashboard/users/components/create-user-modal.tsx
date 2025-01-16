@@ -13,16 +13,15 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
-import { Plan } from "../../../../types/get-plans-response";
+import { GetPlansResponse } from "../../../../types/get-plans-response";
 import { GetPlans } from "../../api-handlers/getPlans";
 import { GetInterests } from "../../api-handlers/getInterests";
-import { Interest } from "../../../../types/get-interests-response";
+import { GetInterestsResponse } from "../../../../types/get-interests-response";
 import { useForm, zodResolver } from "@mantine/form";
 import { CreateUserSchema } from "../../../../validation/create-user-schema";
 import { CreateUser } from "../../api-handlers/createUser";
-// import { CreateUser } from "../../api-handlers/createUser";
-// import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 function CreateUserModal({
   opened,
@@ -31,17 +30,32 @@ function CreateUserModal({
   opened: boolean;
   onClose: () => void;
 }) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [PlansData, setPlansData] = useState<Plan[]>([]);
-  const [InterestData, setInterestData] = useState<Interest[]>([]);
+  const queryClient = useQueryClient();
+
+  const {
+    data: plansData,
+    isLoading: plansLoading,
+    error: plansError,
+  } = useQuery<GetPlansResponse, Error, GetPlansResponse, string[]>({
+    queryKey: ["plans"],
+    queryFn: GetPlans,
+  });
+
+  const {
+    data: interestsData,
+    isLoading: interestsLoading,
+    error: interestsError,
+  } = useQuery<GetInterestsResponse, Error, GetInterestsResponse, string[]>({
+    queryKey: ["interests"],
+    queryFn: GetInterests,
+  });
 
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
       is_active: true,
       email: "",
-      interest_id: InterestData[0]?.id + "",
+      interest_id: interestsData?.data[0]?.id + "",
       name: "",
       password: "",
       plan_id: 0,
@@ -54,54 +68,43 @@ function CreateUserModal({
     validate: zodResolver(CreateUserSchema),
   });
 
-  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
-    console.log("🚀 ~ handleSubmit ~ values:", values);
-    try {
-      const response = await CreateUser(values);
-      console.log("User Created Successfully:", response);
-      alert("User created successfully!");
+  const createUserMutation = useMutation({
+    mutationFn: CreateUser,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `User created successfully! 🌟`,
+        position: "top-right",
+      });
       form.reset();
-      onClose()
-    } catch (error:unknown) {
-      console.error(
-        "Error creating user:",
-        error?.response?.data || error?.message
-      );
-      alert("Failed to create user. Please try again.");
-    }
+      onClose();
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `Failed to create user. Please try again.! \n ${createUserMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
+    },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [plansResponse, interestsResponse] = await Promise.all([
-          GetPlans(),
-          GetInterests(),
-        ]);
+  const handleSubmit = form.onSubmit((values) => {
+    createUserMutation.mutate(values);
+  });
 
-      
-        // console.log("🚀Promise ~ GetPlans ~:", plansResponse.data);
-        setPlansData(plansResponse.data);
-
-        // console.log("🚀Promise ~ GetInterests ~:", interestsResponse.data);
-        setInterestData(interestsResponse.data);
-
-        setLoading(false);
-      } catch (err:unknown) {
-        setError(err?.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [open]);
-
-  if (loading) {
+  if (plansLoading || interestsLoading) {
     return <LoadingOverlay visible={true} />;
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (plansError || interestsError) {
+    return (
+      <Text c="red">
+        Error: {plansError?.message || interestsError?.message}
+      </Text>
+    );
   }
 
   return (
@@ -212,10 +215,10 @@ function CreateUserModal({
               label={<Text className="text-sm font-semibold">Interests:</Text>}
               variant="filled"
               className="w-full"
-              defaultValue={InterestData[0].id + ""}
+              defaultValue={interestsData?.data[0].id + ""}
               //   value={value}
               //   onChange={(event) => setValue(event.currentTarget.value)}
-              data={InterestData.map((item) => {
+              data={interestsData?.data.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}
               key={form.key("interest_id")}
@@ -227,9 +230,7 @@ function CreateUserModal({
               }
               variant="filled"
               className="w-full"
-              // value={value}
-              //   onChange={(event) => setValue(event.currentTarget.value)}
-              data={InterestData.map((item) => {
+              data={interestsData?.data.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}
               key={form.key("sub_interest_id")}
@@ -248,7 +249,7 @@ function CreateUserModal({
               {...form.getInputProps("plan_id")}
             >
               <Group>
-                {PlansData.map((plan, index) => {
+                {plansData?.data.map((plan, index) => {
                   return (
                     <Radio
                       key={index}

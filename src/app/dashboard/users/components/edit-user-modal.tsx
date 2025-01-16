@@ -13,15 +13,18 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
-import { Plan } from "../../../../types/get-plans-response";
+import { useEffect } from "react";
+import { GetPlansResponse } from "../../../../types/get-plans-response";
 import { GetPlans } from "../../api-handlers/getPlans";
 import { GetInterests } from "../../api-handlers/getInterests";
-import { Interest } from "../../../../types/get-interests-response";
+import { GetInterestsResponse } from "../../../../types/get-interests-response";
 import { useForm, zodResolver } from "@mantine/form";
 import { CreateUserSchema } from "../../../../validation/create-user-schema";
 import { GetUser } from "../../api-handlers/getUser";
 import { UpdateUser } from "../../api-handlers/updateUser";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { GetUserResponse } from "../../../../types/get-user-response";
+import { notifications } from "@mantine/notifications";
 
 function EditUserModal({
   userId,
@@ -32,11 +35,6 @@ function EditUserModal({
   opened: boolean;
   onClose: () => void;
 }) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [PlansData, setPlansData] = useState<Plan[]>([]);
-  const [InterestData, setInterestData] = useState<Interest[]>([]);
-
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -53,62 +51,150 @@ function EditUserModal({
     validate: zodResolver(CreateUserSchema),
   });
 
-  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
-    console.log("🚀 ~ handleSubmit ~ values:", values);
-    try {
-      const response = await UpdateUser(userId, values);
-      console.log("User Updated Successfully:", response);
-      alert("User Updated successfully!");
+  const queryClient = useQueryClient();
+
+  const {
+    data: plansData,
+    isLoading: plansLoading,
+    error: plansError,
+  } = useQuery<GetPlansResponse, Error, GetPlansResponse, string[]>({
+    queryKey: ["plans"],
+    queryFn: GetPlans,
+  });
+
+  const {
+    data: interestsData,
+    isLoading: interestsLoading,
+    error: interestsError,
+  } = useQuery<GetInterestsResponse, Error, GetInterestsResponse, string[]>({
+    queryKey: ["interests"],
+    queryFn: GetInterests,
+  });
+
+  const { data: userData, isLoading: userLoading } = useQuery<
+    GetUserResponse,
+    Error,
+    GetUserResponse,
+    string[]
+  >({
+    queryKey: ["user", userId],
+    queryFn: () => GetUser(userId),
+    enabled: !!userId, // Only run the query if userId is available
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: (values: typeof form.values) => UpdateUser(userId, values),
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["users"], userId });
+      notifications.show({
+        title: "Success ~ 🚀",
+        message: `User Updated successfully! 🌟`,
+        position: "top-right",
+      });
       form.reset();
       onClose();
-    } catch (error: unknown) {
-      console.error(
-        "Error Updating user:",
-        error?.response?.data || error?.message
-      );
-      alert("Failed to update user. Please try again.");
-    }
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error ~ 🚀",
+        message: `Failed to update user. Please try again.! \n ${updateUserMutation.error?.message} `,
+        position: "top-right",
+        color: "red",
+      });
+    },
+  });
+
+  const handleSubmit = form.onSubmit((values: typeof form.values) => {
+    console.log("🚀 ~ handleSubmit ~ values:", values);
+    updateUserMutation.mutate({ ...values });
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [plansResponse, interestsResponse, userResponse] =
-          await Promise.all([GetPlans(), GetInterests(), GetUser(userId)]);
+    if (userData) {
+      form.setValues({
+        is_active: userData?.data?.is_active === 1,
+        email: userData?.data?.email || "",
+        name: userData?.data?.name || "",
+        plan_id: userData?.data?.plan?.id || 0,
+        username: userData?.data?.username || "",
+        // interest_id: "",
+        // password: userData?.data?. || "",
+        plan_period: "monthly",
+        // sub_interest_id: "",
+        // username: "",
+      });
+    }
+  }, [userData]);
 
-        if (userResponse && userResponse?.success) {
-          form.setValues({
-            is_active: userResponse?.data?.is_active == 1 ? true : false,
-            email: userResponse?.data?.email || "",
-            name: userResponse?.data?.name || "",
-            plan_id: userResponse?.data?.plan?.id || 0,
-            username: userResponse?.data?.username || "",
-          });
-        }
-
-        // console.log("🚀Promise ~ GetPlans ~:", plansResponse.data);
-        setPlansData(plansResponse.data);
-
-        // console.log("🚀Promise ~ GetInterests ~:", interestsResponse.data);
-        setInterestData(interestsResponse.data);
-
-        setLoading(false);
-      } catch (err: unknown) {
-        setError(err?.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [opened]);
-
-  if (loading) {
+  if (userLoading || plansLoading || interestsLoading) {
     return <LoadingOverlay visible={true} />;
   }
 
-  if (error) {
-    return <Text c="red">Error: {error}</Text>;
+  if (plansError || interestsError) {
+    return (
+      <Text c="red">
+        Error: {plansError?.message || interestsError?.message}
+      </Text>
+    );
   }
+
+  // const handleSubmit2 = form.onSubmit(async (values: typeof form.values) => {
+  //   console.log("🚀 ~ handleSubmit ~ values:", values);
+  //   try {
+  //     const response = await UpdateUser(userId, values);
+  //     console.log("User Updated Successfully:", response);
+  //     alert("User Updated successfully!");
+  //     form.reset();
+  //     onClose();
+  //   } catch (error: unknown) {
+  //     console.error(
+  //       "Error Updating user:",
+  //       error?.response?.data || error?.message
+  //     );
+  //     alert("Failed to update user. Please try again.");
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [plansResponse, interestsResponse, userResponse] =
+  //         await Promise.all([GetPlans(), GetInterests(), GetUser(userId)]);
+
+  //       if (userResponse && userResponse?.success) {
+  //         form.setValues({
+  //           is_active: userResponse?.data?.is_active == 1 ? true : false,
+  //           email: userResponse?.data?.email || "",
+  //           name: userResponse?.data?.name || "",
+  //           plan_id: userResponse?.data?.plan?.id || 0,
+  //           username: userResponse?.data?.username || "",
+  //         });
+  //       }
+
+  //       // console.log("🚀Promise ~ GetPlans ~:", plansResponse.data);
+  //       setPlansData(plansResponse.data);
+
+  //       // console.log("🚀Promise ~ GetInterests ~:", interestsResponse.data);
+  //       setInterestData(interestsResponse.data);
+
+  //       setLoading(false);
+  //     } catch (err: unknown) {
+  //       setError(err?.message);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [opened]);
+
+  // if (loading) {
+  //   return <LoadingOverlay visible={true} />;
+  // }
+
+  // if (error) {
+  //   return <Text c="red">Error: {error}</Text>;
+  // }
 
   return (
     <>
@@ -218,8 +304,8 @@ function EditUserModal({
               label={<Text className="text-sm font-semibold">Interests:</Text>}
               variant="filled"
               className="w-full"
-              defaultValue={InterestData[0].id + ""}
-              data={InterestData.map((item) => {
+              defaultValue={interestsData?.data[0].id + ""}
+              data={interestsData?.data.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}
               key={form.key("interest_id")}
@@ -231,7 +317,7 @@ function EditUserModal({
               }
               variant="filled"
               className="w-full"
-              data={InterestData.map((item) => {
+              data={interestsData?.data.map((item) => {
                 return { label: item.title, value: `${item.id}` };
               })}
               key={form.key("sub_interest_id")}
@@ -250,7 +336,7 @@ function EditUserModal({
               {...form.getInputProps("plan_id")}
             >
               <Group>
-                {PlansData.map((plan, index) => {
+                {plansData?.data.map((plan, index) => {
                   return (
                     <Radio
                       key={index}

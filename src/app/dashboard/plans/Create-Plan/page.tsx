@@ -16,6 +16,7 @@ import {
   PlanFeaturesLimits,
 } from "../content";
 import { notifications } from "@mantine/notifications";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function CreatePLanPage() {
   const navigate = useNavigate();
@@ -68,27 +69,56 @@ function CreatePLanPage() {
     validate: zodResolver(CreatePlanSchema),
   });
 
-  const handleSubmit = form.onSubmit(async (values: typeof form.values) => {
-    try {
-      await CreatePlan(values);
+  const queryClient = useQueryClient();
+
+  const updatePlanMutation = useMutation({
+    mutationFn: (values: typeof form.values) => CreatePlan(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["plans"] });
       form.reset();
       notifications.show({
-        title: "Plan Created Successfully",
-        message: `The Plan ${values.name} is created now !🌟`,
+        title: "Success",
+        message: `The plan has been Created successfully.`,
+        color: "blue",
         position: "top-right",
       });
       navigate("/dashboard/plans");
-    } catch (error: unknown) {
+    },
+    onError: () => {
       notifications.show({
-        title: "Error creating plan:",
-        message:
-          error?.response?.data?.message ||
-          `Failed to create plan  ${values.name}.`,
+        title: "Error",
+        message: updatePlanMutation.error?.message || "Failed to create plan.",
         color: "red",
         position: "top-right",
       });
-    }
+    },
   });
+
+  const handleSubmit = form.onSubmit((values: typeof form.values) => {
+    console.log("🚀 ~ EditPLanPage ~ values:", values);
+    return updatePlanMutation.mutate(values);
+  });
+  // const handleSubmit2 = form.onSubmit(async (values: typeof form.values) => {
+  //   try {
+  //     await CreatePlan(values);
+  //     form.reset();
+  //     notifications.show({
+  //       title: "Plan Created Successfully",
+  //       message: `The Plan ${values.name} is created now !🌟`,
+  //       position: "top-right",
+  //     });
+  //     navigate("/dashboard/plans");
+  //   } catch (error: unknown) {
+  //     notifications.show({
+  //       title: "Error creating plan:",
+  //       message:
+  //         error?.response?.data?.message ||
+  //         `Failed to create plan  ${values.name}.`,
+  //       color: "red",
+  //       position: "top-right",
+  //     });
+  //   }
+  // });
 
   const PlanFeaturesLimitsElements = () => {
     return (

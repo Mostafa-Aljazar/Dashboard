@@ -7,7 +7,7 @@ export const GetUserData = async () => {
 };
 
 export const GetUserPagination = async ({
-  per_page,
+  per_page = 15,
   page,
 }: {
   per_page: number;
